@@ -176,6 +176,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     color: var(--text-secondary);
     width: 100%;
     box-sizing: border-box;
+    flex-wrap: wrap;
   }
 
   .compare-bar .compare-hint {
@@ -205,12 +206,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     width: 44px;
     text-align: center;
   }
-  td.td-check input[type="checkbox"],
-  th.th-check input[type="checkbox"] {
+  :global(input[type="checkbox"]) {
     appearance: none;
     -webkit-appearance: none;
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
     border: 2px solid var(--border-default);
     border-radius: 4px;
     background: var(--surface-2);
@@ -220,17 +222,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     transition: border-color var(--transition-fast), background var(--transition-fast);
     flex-shrink: 0;
   }
-  td.td-check input[type="checkbox"]:hover,
-  th.th-check input[type="checkbox"]:hover {
+  :global(input[type="checkbox"]:hover) {
     border-color: var(--accent-primary);
   }
-  td.td-check input[type="checkbox"]:checked,
-  th.th-check input[type="checkbox"]:checked {
+  :global(input[type="checkbox"]:checked) {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
   }
-  td.td-check input[type="checkbox"]:checked::after,
-  th.th-check input[type="checkbox"]:checked::after {
+  :global(input[type="checkbox"]:checked::after) {
     content: '';
     display: block;
     position: absolute;
@@ -243,8 +242,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border-left: none;
     transform: rotate(45deg);
   }
-  td.td-check input[type="checkbox"]:focus-visible,
-  th.th-check input[type="checkbox"]:focus-visible {
+  :global(input[type="checkbox"]:focus-visible) {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;
   }
@@ -398,6 +396,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-radius: var(--radius-md);
     margin-top: var(--space-4);
+  }
+
+  @media (max-width: 768px) {
+    .comparison-cols {
+      grid-template-columns: 1fr;
+    }
+    .comparison-arrow {
+      display: none;
+    }
+    thead th:nth-child(3),
+    tbody td:nth-child(3) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .history-header {
+      flex-wrap: wrap;
+    }
+    .compare-bar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .compare-btn {
+      align-self: flex-end;
+    }
+    .audit-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 </style>
 
