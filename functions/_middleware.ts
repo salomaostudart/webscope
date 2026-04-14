@@ -143,7 +143,7 @@ function getMaintenancePage(): string {
       padding: 24px;
       padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
     }
-    .container { max-width: 520px; text-align: center; width: 100%; }
+    .container { max-width: 520px; text-align: center; width: 100%; margin: auto; }
 
     /* Logo */
     .logo {
@@ -182,10 +182,13 @@ function getMaintenancePage(): string {
       border-top: 1px solid #1a1a24;
     }
     .access-btn {
-      background: none; border: none; color: #4a4a5a; font-size: 12px;
-      cursor: pointer; padding: 8px; transition: color 0.2s; min-height: 44px;
+      background: none; border: 1px solid #2d2d3d; color: #94a3b8; font-size: 13px;
+      cursor: pointer; padding: 10px 20px; transition: all 0.2s; min-height: 44px;
+      border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none;
     }
-    .access-btn:hover { color: #818cf8; }
+    .access-btn:hover { color: #818cf8; border-color: #818cf8; background: rgba(129,140,248,0.08); }
+    .access-btn::after { content: '→'; font-size: 14px; }
 
     .access-form {
       display: none; margin-top: 16px;
@@ -211,6 +214,8 @@ function getMaintenancePage(): string {
     .access-submit:disabled { opacity: 0.5; cursor: wait; }
 
     .access-error { color: #ef4444; font-size: 13px; min-height: 1.2em; }
+    .access-input.error { border-color: #ef4444; animation: shake 0.4s ease; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -293,7 +298,9 @@ function getMaintenancePage(): string {
         if (result.ok) {
           window.location.reload();
         } else {
-          errorEl.textContent = 'Invalid access code';
+          errorEl.textContent = 'Invalid access code. Please try again.';
+          input.classList.add('error');
+          setTimeout(function() { input.classList.remove('error'); }, 600);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Enter';
           input.value = '';
