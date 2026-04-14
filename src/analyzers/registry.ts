@@ -3,12 +3,16 @@ import { scoreToGrade, sortBySeverity } from '../utils/scoring';
 import { PerformanceAnalyzer } from './performance/performance.analyzer';
 import { SEOAnalyzer } from './seo/seo.analyzer';
 import { AccessibilityAnalyzer } from './accessibility/accessibility.analyzer';
+import { ContentAnalyzer } from './content/content.analyzer';
+import { SecurityAnalyzer } from './security/security.analyzer';
 
 export const analyzers: IAnalyzer[] = [
   new PerformanceAnalyzer(),
   new SEOAnalyzer(),
   new AccessibilityAnalyzer(),
-  // Future: ContentAnalyzer, BrandingAnalyzer, SecurityAnalyzer
+  new ContentAnalyzer(),
+  new SecurityAnalyzer(),
+  // Future: BrandingAnalyzer
 ];
 
 export async function runFullAudit(input: AnalysisInput): Promise<AuditResult> {
