@@ -8,6 +8,7 @@
 interface Env {
   ALLOWED_ORIGIN: string;
   AI: Ai;
+  DB: D1Database;
   FEEDBACK_SCREENSHOTS: KVNamespace;
   GITHUB_TOKEN: string;
 }
@@ -112,6 +113,24 @@ export default {
     // Route: POST /feedback — bug/feedback reporting
     if (url.pathname === '/feedback' && request.method === 'POST') {
       return handleFeedback(request, env, cors);
+    }
+
+    // Route: POST /audits — save audit result
+    if (url.pathname === '/audits' && request.method === 'POST') {
+      return handleSaveAudit(request, env, cors);
+    }
+
+    // Route: GET /audits/:id — get audit by ID (share link)
+    if (url.pathname.startsWith('/audits/') && request.method === 'GET') {
+      const id = url.pathname.replace('/audits/', '');
+      return handleGetAudit(id, env, cors);
+    }
+
+    // Route: GET /audits — list recent audits
+    if (url.pathname === '/audits' && request.method === 'GET') {
+      const domain = url.searchParams.get('domain') || undefined;
+      const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+      return handleListAudits(domain, limit, env, cors);
     }
 
     // Route: GET /screenshot/:id — serve screenshot from KV
@@ -290,6 +309,113 @@ Respond ONLY with valid JSON in this exact format, no markdown:
   } catch (err) {
     const message = err instanceof Error ? err.message : 'AI request failed';
     return jsonError(`AI error: ${message}`, 502, cors);
+  }
+}
+
+// --- Audit persistence (D1) ---
+
+async function handleSaveAudit(
+  request: Request, env: Env, cors: Record<string, string>,
+): Promise<Response> {
+  try {
+    const body = await request.json() as {
+      url: string; overallScore: number; overallGrade: string;
+      results: Array<{ analyzer: string; score: number; grade: string; findings: any[]; data: any }>;
+      allFindings: any[]; analyzedAt: string; aiSummary?: string; quickWins?: any[];
+    };
+
+    if (!body.url || body.overallScore === undefined) {
+      return jsonError('Missing required fields', 400, cors);
+    }
+
+    const id = crypto.randomUUID().replace(/-/g, '');
+    const domain = new URL(body.url).hostname;
+    const scores: Record<string, number> = {};
+    body.results.forEach((r) => { scores[r.analyzer] = r.score; });
+
+    await env.DB.prepare(
+      `INSERT INTO ws_audits (id, url, domain, overall_score, overall_grade, scores, metadata, ai_summary, quick_wins, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      id, body.url, domain, body.overallScore, body.overallGrade,
+      JSON.stringify(scores), JSON.stringify({ analyzedAt: body.analyzedAt }),
+      body.aiSummary || null, body.quickWins ? JSON.stringify(body.quickWins) : null,
+      body.analyzedAt,
+    ).run();
+
+    // Insert findings (batch)
+    const stmt = env.DB.prepare(
+      `INSERT INTO ws_findings (audit_id, analyzer, finding_id, severity, category, title, description, recommendation, impact, effort, current_value, expected_value)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    );
+
+    const batch = body.allFindings.slice(0, 200).map((f) =>
+      stmt.bind(id, f.analyzer, f.id, f.severity, f.category, f.title,
+        f.description, f.recommendation, f.impact, f.effort, f.value || null, f.expected || null)
+    );
+
+    if (batch.length > 0) {
+      await env.DB.batch(batch);
+    }
+
+    const shareUrl = `https://webscope.sal.dev.br/report?id=${id}`;
+
+    return new Response(JSON.stringify({ success: true, id, shareUrl }), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch (err) {
+    return jsonError(`Failed to save audit: ${err instanceof Error ? err.message : 'unknown'}`, 500, cors);
+  }
+}
+
+async function handleGetAudit(
+  id: string, env: Env, cors: Record<string, string>,
+): Promise<Response> {
+  try {
+    const audit = await env.DB.prepare('SELECT * FROM ws_audits WHERE id = ?').bind(id).first();
+    if (!audit) return jsonError('Audit not found', 404, cors);
+
+    const findings = await env.DB.prepare('SELECT * FROM ws_findings WHERE audit_id = ?').bind(id).all();
+
+    return new Response(JSON.stringify({
+      ...audit,
+      scores: JSON.parse(audit.scores as string),
+      metadata: audit.metadata ? JSON.parse(audit.metadata as string) : null,
+      quick_wins: audit.quick_wins ? JSON.parse(audit.quick_wins as string) : null,
+      findings: findings.results,
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch {
+    return jsonError('Failed to fetch audit', 500, cors);
+  }
+}
+
+async function handleListAudits(
+  domain: string | undefined, limit: number, env: Env, cors: Record<string, string>,
+): Promise<Response> {
+  try {
+    const safeLimit = Math.min(Math.max(1, limit), 50);
+    let result;
+
+    if (domain) {
+      result = await env.DB.prepare(
+        'SELECT id, url, domain, overall_score, overall_grade, created_at FROM ws_audits WHERE domain = ? ORDER BY created_at DESC LIMIT ?'
+      ).bind(domain, safeLimit).all();
+    } else {
+      result = await env.DB.prepare(
+        'SELECT id, url, domain, overall_score, overall_grade, created_at FROM ws_audits ORDER BY created_at DESC LIMIT ?'
+      ).bind(safeLimit).all();
+    }
+
+    return new Response(JSON.stringify(result.results), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch {
+    return jsonError('Failed to list audits', 500, cors);
   }
 }
 

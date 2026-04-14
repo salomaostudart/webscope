@@ -11,3 +11,8 @@ binding = "AI"
 [[kv_namespaces]]
 binding = "FEEDBACK_SCREENSHOTS"
 id = "48586b61e46f4b7e841211601a619245"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "webscope-db"
+database_id = "1627aedf-7f46-4a87-ad55-c1d64dcb1779"
