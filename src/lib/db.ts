@@ -56,6 +56,24 @@ export async function getAudit(id: string): Promise<any | null> {
   }
 }
 
+export interface AuditComparison {
+  audit1: { id: string; url: string; score: number; grade: string; date: string; scores: Record<string, number> };
+  audit2: { id: string; url: string; score: number; grade: string; date: string; scores: Record<string, number> };
+  delta: { overall: number; categories: Record<string, number> };
+  improved: boolean;
+}
+
+export async function compareAudits(id1: string, id2: string): Promise<AuditComparison | null> {
+  try {
+    const response = await fetch(`${WORKER_URL}/audits/compare?id1=${id1}&id2=${id2}`);
+    if (!response.ok) return null;
+    return response.json() as Promise<AuditComparison>;
+  } catch {
+    if (import.meta.env?.DEV) console.error('Compare failed');
+    return null;
+  }
+}
+
 export async function listAudits(domain?: string, limit = 20): Promise<AuditSummary[]> {
   try {
     const params = new URLSearchParams();

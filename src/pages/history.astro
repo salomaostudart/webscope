@@ -162,15 +162,215 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
   }
+
+  .compare-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .compare-bar .compare-hint {
+    flex: 1;
+  }
+
+  .compare-btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+  }
+  .compare-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .compare-btn:not(:disabled):hover {
+    opacity: 0.85;
+  }
+
+  td.td-check {
+    width: 36px;
+    text-align: center;
+  }
+  td.td-check input[type="checkbox"],
+  th.th-check input[type="checkbox"] {
+    accent-color: var(--accent-primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .comparison-card {
+    margin-top: var(--space-6);
+    padding: var(--space-5) var(--space-6);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+  }
+
+  .comparison-card h2 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-5) 0;
+  }
+
+  .comparison-cols {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-5);
+  }
+
+  .comparison-col {
+    background: var(--surface-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .comparison-col .col-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+  }
+
+  .comparison-col .col-url {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    word-break: break-all;
+    margin-bottom: var(--space-2);
+  }
+
+  .comparison-col .col-date {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .comparison-col .col-score {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .comparison-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    padding-top: var(--space-10);
+  }
+
+  .delta-overall {
+    text-align: center;
+    margin-bottom: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .delta-positive {
+    background: rgba(74, 222, 128, 0.08);
+    color: var(--grade-a, #4ade80);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+
+  .delta-negative {
+    background: rgba(248, 113, 113, 0.08);
+    color: var(--grade-f, #f87171);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+  }
+
+  .delta-neutral {
+    background: var(--surface-3);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+  }
+
+  .category-deltas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    border: 1px solid;
+  }
+
+  .chip-positive {
+    color: var(--grade-a, #4ade80);
+    border-color: rgba(74, 222, 128, 0.3);
+    background: rgba(74, 222, 128, 0.06);
+  }
+
+  .chip-negative {
+    color: var(--grade-f, #f87171);
+    border-color: rgba(248, 113, 113, 0.3);
+    background: rgba(248, 113, 113, 0.06);
+  }
+
+  .chip-neutral {
+    color: var(--text-muted);
+    border-color: var(--border-default);
+    background: var(--surface-3);
+  }
+
+  .comparison-loading {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    padding: var(--space-6);
+  }
+
+  .comparison-error {
+    color: var(--accent-danger, #f87171);
+    font-size: var(--text-sm);
+    padding: var(--space-4);
+    background: rgba(248, 113, 113, 0.06);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+  }
 </style>
 
 <script>
-  import { listAudits } from '../lib/db';
-  import type { AuditSummary } from '../lib/db';
+  import { listAudits, compareAudits } from '../lib/db';
+  import type { AuditSummary, AuditComparison } from '../lib/db';
   import { escapeHtml } from '../utils/sanitize';
 
   const container = document.getElementById('history-content');
   if (!container) throw new Error('history-content not found');
+
+  // Track selected audit IDs for comparison
+  const selected = new Set<string>();
 
   function formatDate(iso: string): string {
     try {
@@ -205,12 +405,56 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     `;
   }
 
+  function deltaSign(n: number): string {
+    return n > 0 ? '+' : '';
+  }
+
+  function renderComparison(data: AuditComparison): string {
+    const overall = data.delta.overall;
+    const deltaClass = overall > 0 ? 'delta-positive' : overall < 0 ? 'delta-negative' : 'delta-neutral';
+    const deltaLabel = overall === 0
+      ? 'No change in overall score'
+      : `${deltaSign(overall)}${overall} points overall`;
+
+    const chips = Object.entries(data.delta.categories).map(([key, val]) => {
+      const chipClass = val > 0 ? 'chip-positive' : val < 0 ? 'chip-negative' : 'chip-neutral';
+      const label = escapeHtml(key.charAt(0).toUpperCase() + key.slice(1));
+      const valStr = escapeHtml(`${deltaSign(val)}${Math.round(val)}`);
+      return `<span class="category-chip ${chipClass}">${label} ${valStr}</span>`;
+    }).join('');
+
+    return `
+      <div class="comparison-card">
+        <h2>Comparison</h2>
+        <div class="comparison-cols">
+          <div class="comparison-col">
+            <div class="col-label">Baseline (older)</div>
+            <div class="col-url" title="${escapeHtml(String(data.audit1.url))}">${escapeHtml(truncateUrl(String(data.audit1.url)))}</div>
+            <div class="col-date">${escapeHtml(formatDate(String(data.audit1.date)))}</div>
+            <div class="col-score">${escapeHtml(String(data.audit1.score))}</div>
+          </div>
+          <div class="comparison-arrow">&#8594;</div>
+          <div class="comparison-col">
+            <div class="col-label">Latest (newer)</div>
+            <div class="col-url" title="${escapeHtml(String(data.audit2.url))}">${escapeHtml(truncateUrl(String(data.audit2.url)))}</div>
+            <div class="col-date">${escapeHtml(formatDate(String(data.audit2.date)))}</div>
+            <div class="col-score">${escapeHtml(String(data.audit2.score))}</div>
+          </div>
+        </div>
+        <div class="delta-overall ${deltaClass}">${escapeHtml(deltaLabel)}</div>
+        ${chips ? `<div class="category-deltas">${chips}</div>` : ''}
+      </div>
+    `;
+  }
+
   function renderTable(audits: AuditSummary[]): string {
     const rows = audits.map((a) => {
       const shareUrl = `/report?id=${encodeURIComponent(a.id)}`;
       const gradeClass = `grade-${escapeHtml(a.overall_grade)}`;
+      const safeId = escapeHtml(a.id);
       return `
-        <tr>
+        <tr data-audit-id="${safeId}">
+          <td class="td-check"><input type="checkbox" aria-label="Select audit" data-id="${safeId}"></td>
           <td class="td-url" title="${escapeHtml(a.url)}">${escapeHtml(truncateUrl(a.url))}</td>
           <td>${escapeHtml(formatDate(a.created_at))}</td>
           <td class="td-score">${escapeHtml(String(a.overall_score))}</td>
@@ -225,6 +469,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <table>
           <thead>
             <tr>
+              <th class="th-check"></th>
               <th>URL</th>
               <th>Date</th>
               <th>Score</th>
@@ -235,12 +480,100 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <tbody>${rows}</tbody>
         </table>
       </div>
+      <div class="compare-bar">
+        <span class="compare-hint" id="compare-hint">Select 2 audits to compare</span>
+        <button class="compare-btn" id="compare-btn" disabled>Compare</button>
+      </div>
+      <div id="comparison-result"></div>
     `;
+  }
+
+  function updateCompareBar(): void {
+    const hint = document.getElementById('compare-hint');
+    const btn = document.getElementById('compare-btn') as HTMLButtonElement | null;
+    if (!hint || !btn) return;
+
+    const count = selected.size;
+    if (count === 0) {
+      hint.textContent = 'Select 2 audits to compare';
+    } else if (count === 1) {
+      hint.textContent = '1 selected — select 1 more';
+    } else {
+      hint.textContent = '2 audits selected';
+    }
+
+    btn.disabled = count !== 2;
+  }
+
+  function bindCompareEvents(): void {
+    // Checkbox changes
+    document.querySelectorAll<HTMLInputElement>('input[data-id]').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        const id = cb.dataset.id!;
+        if (cb.checked) {
+          if (selected.size >= 2) {
+            cb.checked = false;
+            return;
+          }
+          selected.add(id);
+        } else {
+          selected.delete(id);
+        }
+        updateCompareBar();
+      });
+    });
+
+    // Compare button
+    const btn = document.getElementById('compare-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      if (selected.size !== 2) return;
+      const [id1, id2] = Array.from(selected);
+
+      const resultEl = document.getElementById('comparison-result');
+      if (!resultEl) return;
+
+      resultEl.innerHTML = '<p class="comparison-loading">Loading comparison...</p>';
+      btn.setAttribute('disabled', '');
+
+      const data = await compareAudits(id1, id2);
+      btn.removeAttribute('disabled');
+
+      if (!data) {
+        resultEl.innerHTML = '<p class="comparison-error">Failed to load comparison. Please try again.</p>';
+        return;
+      }
+
+      // Order so that audit1 = older (lower date), audit2 = newer
+      const d1 = new Date(String(data.audit1.date)).getTime();
+      const d2 = new Date(String(data.audit2.date)).getTime();
+      const ordered = d1 <= d2 ? data : {
+        ...data,
+        audit1: data.audit2,
+        audit2: data.audit1,
+        delta: {
+          overall: -data.delta.overall,
+          categories: Object.fromEntries(
+            Object.entries(data.delta.categories).map(([k, v]) => [k, -v])
+          ),
+        },
+        improved: !data.improved,
+      };
+
+      resultEl.innerHTML = renderComparison(ordered);
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   try {
     const audits = await listAudits();
-    container.innerHTML = audits.length === 0 ? renderEmpty() : renderTable(audits);
+    if (audits.length === 0) {
+      container.innerHTML = renderEmpty();
+    } else {
+      container.innerHTML = renderTable(audits);
+      bindCompareEvents();
+    }
   } catch (err) {
     if (import.meta.env?.DEV) console.error('Failed to load audits:', err);
     container.innerHTML = '<p class="error-msg">Failed to load audit history.</p>';

@@ -29,6 +29,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="report-actions">
           <button class="export-btn" id="export-csv" type="button" title="Download CSV">CSV</button>
           <button class="export-btn" id="export-md" type="button" title="Download Markdown">MD</button>
+          <button class="export-btn" id="export-pdf" type="button" title="Download PDF">PDF</button>
           <span class="report-date" id="report-date"></span>
         </div>
       </div>
@@ -239,6 +240,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       // Wire up export buttons
       document.getElementById('export-csv')?.addEventListener('click', () => downloadCSV(result));
       document.getElementById('export-md')?.addEventListener('click', () => downloadMarkdown(result));
+      document.getElementById('export-pdf')?.addEventListener('click', () => window.print());
 
       renderReport(result);
 
