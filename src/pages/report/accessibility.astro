@@ -19,6 +19,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const d = (window as any).__analyzerData;
     if (!d) return;
@@ -36,10 +38,10 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
     // Landmarks
     html += '<div class="landmarks-section"><h3>HTML Landmarks</h3>';
     if (d.landmarksPresent?.length) {
-      d.landmarksPresent.forEach((l: string) => { html += `<span class="landmark-tag landmark-present">&lt;${l}&gt;</span>`; });
+      d.landmarksPresent.forEach((l: string) => { html += `<span class="landmark-tag landmark-present">&lt;${escapeHtml(l)}&gt;</span>`; });
     }
     if (d.landmarksMissing?.length) {
-      d.landmarksMissing.forEach((l: string) => { html += `<span class="landmark-tag landmark-missing">&lt;${l}&gt; missing</span>`; });
+      d.landmarksMissing.forEach((l: string) => { html += `<span class="landmark-tag landmark-missing">&lt;${escapeHtml(l)}&gt; missing</span>`; });
     }
     html += `<p style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--text-muted)">Language: ${d.languageSet ? 'Set' : 'Missing'}</p>`;
     html += '</div>';

@@ -19,6 +19,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const d = (window as any).__analyzerData;
     if (!d) return;
@@ -30,11 +32,11 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 
     // Title
     html += `<div class="seo-card"><h4>Title ${status(!!d.title?.value, d.title?.value && !d.title?.isOptimal)}</h4>
-      <p class="seo-value">${d.title?.value ? `<strong>${d.title.value}</strong> (${d.title.length} chars)` : 'Not set'}</p></div>`;
+      <p class="seo-value">${d.title?.value ? `<strong>${escapeHtml(d.title.value)}</strong> (${d.title.length} chars)` : 'Not set'}</p></div>`;
 
     // Meta description
     html += `<div class="seo-card"><h4>Meta Description ${status(!!d.metaDescription?.value, d.metaDescription?.value && !d.metaDescription?.isOptimal)}</h4>
-      <p class="seo-value">${d.metaDescription?.value ? `${d.metaDescription.value.substring(0, 100)}... (${d.metaDescription.length} chars)` : 'Not set'}</p></div>`;
+      <p class="seo-value">${d.metaDescription?.value ? `${escapeHtml(d.metaDescription.value.substring(0, 100))}... (${d.metaDescription.length} chars)` : 'Not set'}</p></div>`;
 
     // Headings
     const h = d.headings;
@@ -52,16 +54,16 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 
     // Canonical
     html += `<div class="seo-card"><h4>Canonical ${status(!!d.canonical)}</h4>
-      <p class="seo-value">${d.canonical || 'Not set'}</p></div>`;
+      <p class="seo-value">${d.canonical ? escapeHtml(d.canonical) : 'Not set'}</p></div>`;
 
     // Open Graph
     const ogKeys = d.openGraph ? Object.entries(d.openGraph).filter(([,v]) => v) : [];
     html += `<div class="seo-card"><h4>Open Graph ${status(ogKeys.length >= 3)}</h4>
-      <p class="seo-value">${ogKeys.length > 0 ? ogKeys.map(([k,v]) => `${k}: ${(v as string).substring(0, 50)}`).join('<br>') : 'Not set'}</p></div>`;
+      <p class="seo-value">${ogKeys.length > 0 ? ogKeys.map(([k,v]) => `${escapeHtml(k)}: ${escapeHtml((v as string).substring(0, 50))}`).join('<br>') : 'Not set'}</p></div>`;
 
     // Structured Data
     html += `<div class="seo-card"><h4>Structured Data ${status(d.structuredData?.length > 0)}</h4>
-      <p class="seo-value">${d.structuredData?.length > 0 ? d.structuredData.map((s: any) => s.type).join(', ') : 'None found'}</p></div>`;
+      <p class="seo-value">${d.structuredData?.length > 0 ? d.structuredData.map((s: any) => escapeHtml(s.type)).join(', ') : 'None found'}</p></div>`;
 
     html += '</div>';
     container.innerHTML = html;

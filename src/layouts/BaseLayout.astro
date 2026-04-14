@@ -47,7 +47,7 @@ const currentPath = Astro.url.pathname;
   <div class:list={['main-wrapper', { 'full-width': fullWidth }]}>
     <!-- Topbar -->
     <header class="topbar">
-      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu">
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
@@ -149,6 +149,7 @@ const currentPath = Astro.url.pathname;
     sidebar?.classList.toggle('open');
     overlay?.classList.toggle('open');
     document.body.classList.toggle('sidebar-open');
+    menuToggle?.setAttribute('aria-expanded', sidebar?.classList.contains('open') ? 'true' : 'false');
   }
 
   function closeSidebar() {

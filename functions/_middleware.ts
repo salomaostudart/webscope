@@ -24,16 +24,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return next();
   }
 
-  // Handle access code submission
-  if (url.pathname === '/api/access' || (url.pathname === '/api/access' && request.method === 'POST')) {
-    return handleAccessRequest(request, env);
-  }
-
   // Check access cookie
   const cookie = parseCookies(request.headers.get('Cookie') || '');
   const token = cookie['ws_access'];
 
-  if (token && isValidToken(token, env.ACCESS_CODE)) {
+  if (token && await isValidToken(token, env.ACCESS_CODE)) {
     // Authenticated — serve the actual page
     return next();
   }
@@ -48,50 +43,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   });
 };
 
-async function handleAccessRequest(request: Request, env: Env): Promise<Response> {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  try {
-    const body = (await request.json()) as { code?: string };
-    const code = body.code?.trim();
-
-    if (!code || !env.ACCESS_CODE) {
-      return new Response(JSON.stringify({ error: 'Invalid code' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (code !== env.ACCESS_CODE) {
-      return new Response(JSON.stringify({ error: 'Invalid code' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Generate simple token (hash of code + date for rotation)
-    const token = await generateToken(env.ACCESS_CODE);
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Set-Cookie': `ws_access=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${60 * 60 * 24 * 30}`,
-      },
-    });
-  } catch {
-    return new Response(JSON.stringify({ error: 'Bad request' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-}
-
 async function generateToken(code: string): Promise<string> {
   const data = new TextEncoder().encode(code + '-webscope-access');
   const hash = await crypto.subtle.digest('SHA-256', data);
@@ -100,12 +51,16 @@ async function generateToken(code: string): Promise<string> {
     .join('');
 }
 
-function isValidToken(token: string, code: string): boolean {
-  if (!code) return false;
-  // Synchronous check: we can't await here easily, so we use a simpler approach
-  // The token is deterministic (SHA-256 of code + salt), so we regenerate and compare
-  // For the middleware, we'll trust the cookie if it's the right length (64 hex chars)
-  return token.length === 64;
+async function isValidToken(token: string, code: string): Promise<boolean> {
+  if (!code || !token || token.length !== 64) return false;
+  const expected = await generateToken(code);
+  // Timing-safe comparison
+  if (token.length !== expected.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < token.length; i++) {
+    mismatch |= token.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 function parseCookies(cookieHeader: string): Record<string, string> {

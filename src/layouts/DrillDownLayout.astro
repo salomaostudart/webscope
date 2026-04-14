@@ -83,75 +83,88 @@ const { analyzerName, displayName } = Astro.props;
 </style>
 
 <script define:vars={{ analyzerName }}>
-  // Load audit data from sessionStorage
-  const raw = sessionStorage.getItem('webscope_result');
-  const loadingEl = document.getElementById('dd-loading');
-  const contentEl = document.getElementById('dd-content');
-
-  if (!raw) {
-    // No data — show loading message
-  } else {
-    const result = JSON.parse(raw);
-    const analyzerResult = result.results.find((r) => r.analyzer === analyzerName);
-
-    if (!analyzerResult) {
-      loadingEl.innerHTML = '<p>Analyzer data not found.</p><a href="/">Run a new audit</a>';
-    } else {
-      loadingEl.style.display = 'none';
-      contentEl.style.display = 'block';
-
-      // Header
-      document.getElementById('dd-url').textContent = result.url;
-
-      const gradeColors = { A: '#22c55e', B: '#84cc16', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
-      const color = gradeColors[analyzerResult.grade] || '#94a3b8';
-      document.getElementById('dd-score-badge').innerHTML =
-        `<span style="color:${color}">${analyzerResult.grade}</span> <span style="color:var(--text-primary)">${analyzerResult.score}/100</span>`;
-
-      // Expose data for page-specific scripts
-      window.__analyzerData = analyzerResult.data;
-      window.__analyzerResult = analyzerResult;
-      window.dispatchEvent(new CustomEvent('analyzer-data-ready'));
-
-      // Findings
-      const findings = analyzerResult.findings;
-      const severityColors = {
-        critical: 'var(--accent-danger)', warning: 'var(--accent-warning)',
-        info: 'var(--accent-primary)', pass: 'var(--accent-success)',
-      };
-
-      function renderFindings(severity) {
-        const filtered = severity === 'all' ? findings : findings.filter((f) => f.severity === severity);
-        const list = document.getElementById('dd-findings-list');
-        if (filtered.length === 0) {
-          list.innerHTML = '<p style="color:var(--text-muted);padding:var(--space-4)">No findings in this category.</p>';
-          return;
-        }
-        list.innerHTML = filtered.map((f) => `
-          <details style="border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--surface-2);margin-bottom:var(--space-2)">
-            <summary style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);cursor:pointer;list-style:none;font-size:var(--text-sm)">
-              <span style="font-size:0.625rem;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);color:var(--text-inverse);background:${severityColors[f.severity]}">${f.severity}</span>
-              <span style="flex:1;color:var(--text-primary);font-weight:500">${f.title}</span>
-              <span style="font-size:var(--text-xs);color:var(--text-muted)">${f.category}</span>
-            </summary>
-            <div style="padding:0 var(--space-4) var(--space-4);border-top:1px solid var(--border-default);padding-top:var(--space-3)">
-              <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${f.description}</p>
-              ${f.value || f.expected ? `<div style="display:flex;gap:var(--space-4);font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${f.value ? `<span>Current: <strong>${f.value}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${f.expected}</strong></span>` : ''}</div>` : ''}
-              <div style="font-size:var(--text-sm);color:var(--text-secondary);padding:var(--space-2) var(--space-3);background:var(--surface-3);border-radius:var(--radius-sm)"><strong>Recommendation:</strong> ${f.recommendation}</div>
-            </div>
-          </details>
-        `).join('');
-      }
-
-      renderFindings('all');
-
-      document.querySelectorAll('.dd-tab').forEach((tab) => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.dd-tab').forEach((t) => t.classList.remove('active'));
-          tab.classList.add('active');
-          renderFindings(tab.dataset.severity);
-        });
-      });
+  (() => {
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
-  }
+
+    // Load audit data from sessionStorage
+    const raw = sessionStorage.getItem('webscope_result');
+    const loadingEl = document.getElementById('dd-loading');
+    const contentEl = document.getElementById('dd-content');
+
+    if (!raw) {
+      // No data — show loading message
+    } else {
+      const result = JSON.parse(raw);
+      const analyzerResult = result.results.find((r) => r.analyzer === analyzerName);
+
+      if (!analyzerResult) {
+        loadingEl.innerHTML = '<p>Analyzer data not found.</p><a href="/">Run a new audit</a>';
+      } else {
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'block';
+
+        // Header
+        document.getElementById('dd-url').textContent = result.url;
+
+        const gradeColors = { A: '#22c55e', B: '#84cc16', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+        const color = gradeColors[analyzerResult.grade] || '#94a3b8';
+        document.getElementById('dd-score-badge').innerHTML =
+          `<span style="color:${color}">${escapeHtml(analyzerResult.grade)}</span> <span style="color:var(--text-primary)">${escapeHtml(String(analyzerResult.score))}/100</span>`;
+
+        // Expose data for page-specific scripts
+        window.__analyzerData = analyzerResult.data;
+        window.__analyzerResult = analyzerResult;
+        window.dispatchEvent(new CustomEvent('analyzer-data-ready'));
+
+        // Findings
+        const findings = analyzerResult.findings;
+        const severityColors = {
+          critical: 'var(--accent-danger)', warning: 'var(--accent-warning)',
+          info: 'var(--accent-primary)', pass: 'var(--accent-success)',
+        };
+
+        function renderFindings(severity) {
+          const filtered = severity === 'all' ? findings : findings.filter((f) => f.severity === severity);
+          const list = document.getElementById('dd-findings-list');
+          if (filtered.length === 0) {
+            list.innerHTML = '<p style="color:var(--text-muted);padding:var(--space-4)">No findings in this category.</p>';
+            return;
+          }
+          list.innerHTML = filtered.map((f) => `
+            <details style="border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--surface-2);margin-bottom:var(--space-2)">
+              <summary style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);cursor:pointer;list-style:none;font-size:var(--text-sm)">
+                <span style="font-size:0.625rem;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);color:var(--text-inverse);background:${severityColors[f.severity]}">${escapeHtml(f.severity)}</span>
+                <span style="flex:1;color:var(--text-primary);font-weight:500">${escapeHtml(f.title)}</span>
+                <span style="font-size:var(--text-xs);color:var(--text-muted)">${escapeHtml(f.category)}</span>
+              </summary>
+              <div style="padding:0 var(--space-4) var(--space-4);border-top:1px solid var(--border-default);padding-top:var(--space-3)">
+                <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${escapeHtml(f.description)}</p>
+                ${f.value || f.expected ? `<div style="display:flex;gap:var(--space-4);font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${f.value ? `<span>Current: <strong>${escapeHtml(f.value)}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${escapeHtml(f.expected)}</strong></span>` : ''}</div>` : ''}
+                <div style="font-size:var(--text-sm);color:var(--text-secondary);padding:var(--space-2) var(--space-3);background:var(--surface-3);border-radius:var(--radius-sm)"><strong>Recommendation:</strong> ${escapeHtml(f.recommendation)}</div>
+              </div>
+            </details>
+          `).join('');
+        }
+
+        renderFindings('all');
+
+        document.querySelectorAll('.dd-tab').forEach((tab) => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.dd-tab').forEach((t) => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderFindings(tab.dataset.severity);
+          });
+        });
+      }
+    }
+  })();
 </script>
+

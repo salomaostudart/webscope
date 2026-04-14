@@ -402,7 +402,15 @@
 
       if (response.ok && data.success) {
         statusEl.className = 'fm-status success';
-        statusEl.innerHTML = `Report sent! <a href="${data.issueUrl}" target="_blank" rel="noopener">View issue #${data.issueNumber}</a>`;
+        statusEl.textContent = 'Report sent! ';
+        if (data.issueUrl && data.issueUrl.startsWith('https://github.com/')) {
+          const link = document.createElement('a');
+          link.href = data.issueUrl;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = `View issue #${data.issueNumber}`;
+          statusEl.appendChild(link);
+        }
         descInput.value = '';
         removeBtn.click();
         setTimeout(closeModal, 3000);
