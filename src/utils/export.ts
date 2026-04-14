@@ -129,3 +129,9 @@ export function downloadMarkdown(result: AuditResult): void {
   const domain = new URL(result.url).hostname.replace(/\./g, '-');
   downloadFile(md, `webscope-${domain}.md`, 'text/markdown;charset=utf-8');
 }
+
+// --- PDF ---
+
+export function downloadPDF(): void {
+  window.print();
+}

@@ -133,6 +133,14 @@ export default {
       return handleSaveAudit(request, env, cors);
     }
 
+    // Route: GET /audits/compare — compare two audits
+    if (url.pathname === '/audits/compare' && request.method === 'GET') {
+      const id1 = url.searchParams.get('id1');
+      const id2 = url.searchParams.get('id2');
+      if (!id1 || !id2) return jsonError('Missing id1 and id2 parameters', 400, cors);
+      return handleCompareAudits(id1, id2, env, cors);
+    }
+
     // Route: GET /audits/:id — get audit by ID (share link)
     if (url.pathname.startsWith('/audits/') && request.method === 'GET') {
       const id = url.pathname.replace('/audits/', '');
@@ -450,6 +458,41 @@ async function handleListAudits(
     });
   } catch {
     return jsonError('Failed to list audits', 500, cors);
+  }
+}
+
+async function handleCompareAudits(
+  id1: string, id2: string, env: Env, cors: Record<string, string>,
+): Promise<Response> {
+  try {
+    const [audit1, audit2] = await Promise.all([
+      env.DB.prepare('SELECT * FROM ws_audits WHERE id = ?').bind(id1).first(),
+      env.DB.prepare('SELECT * FROM ws_audits WHERE id = ?').bind(id2).first(),
+    ]);
+    if (!audit1 || !audit2) return jsonError('One or both audits not found', 404, cors);
+
+    const scores1 = JSON.parse(audit1.scores as string);
+    const scores2 = JSON.parse(audit2.scores as string);
+
+    const comparison = {
+      audit1: { id: audit1.id, url: audit1.url, score: audit1.overall_score, grade: audit1.overall_grade, date: audit1.created_at, scores: scores1 },
+      audit2: { id: audit2.id, url: audit2.url, score: audit2.overall_score, grade: audit2.overall_grade, date: audit2.created_at, scores: scores2 },
+      delta: {
+        overall: (audit2.overall_score as number) - (audit1.overall_score as number),
+        categories: Object.keys(scores2).reduce((acc, key) => {
+          acc[key] = (scores2[key] || 0) - (scores1[key] || 0);
+          return acc;
+        }, {} as Record<string, number>),
+      },
+      improved: (audit2.overall_score as number) > (audit1.overall_score as number),
+    };
+
+    return new Response(JSON.stringify(comparison), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch {
+    return jsonError('Failed to compare audits', 500, cors);
   }
 }
 
