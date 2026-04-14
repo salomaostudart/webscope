@@ -61,3 +61,4 @@ O que fica mais facil? O que fica mais dificil?
 - [ADR-001 — Astro como framework](decisoes/ADR-001-astro-framework.md)
 - [ADR-002 — Cloudflare Workers como proxy](decisoes/ADR-002-cf-worker-proxy.md)
 - [ADR-003 — Analyzer Pattern](decisoes/ADR-003-analyzer-pattern.md)
+- [ADR-004 — Cloudflare-only stack](decisoes/ADR-004-cloudflare-only.md)
