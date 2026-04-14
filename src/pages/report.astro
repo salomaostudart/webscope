@@ -206,6 +206,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import { scoreToGrade } from '../utils/scoring';
   import { downloadCSV, downloadMarkdown } from '../utils/export';
   import { fetchAISuggestions } from '../lib/ai';
+  import { saveAudit } from '../lib/db';
 
   const loadingState = document.getElementById('loading-state')!;
   const errorState = document.getElementById('error-state')!;
@@ -242,30 +243,52 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       renderReport(result);
 
       // Load AI suggestions in background (non-blocking)
+      // AI suggestions + save to D1 (both async, non-blocking)
       fetchAISuggestions(result).then((ai) => {
-        if (!ai) return;
-        const section = document.getElementById('ai-section')!;
-        const summaryEl = document.getElementById('ai-summary')!;
-        const winsEl = document.getElementById('quick-wins')!;
+        if (ai) {
+          const section = document.getElementById('ai-section')!;
+          const summaryEl = document.getElementById('ai-summary')!;
+          const winsEl = document.getElementById('quick-wins')!;
 
-        section.style.display = 'block';
+          section.style.display = 'block';
+          summaryEl.innerHTML = `<span class="ai-label">AI Summary</span><p>${ai.summary}</p>`;
 
-        summaryEl.innerHTML = `<span class="ai-label">AI Summary</span><p>${ai.summary}</p>`;
-
-        if (ai.quickWins && ai.quickWins.length > 0) {
-          winsEl.innerHTML = `<h3>Quick Wins</h3><ul class="qw-list">${
-            ai.quickWins.map((qw) => `
-              <li class="qw-item">
-                <span class="qw-gain">+${qw.estimatedScoreGain}</span>
-                <span class="qw-title">${qw.title}</span>
-                <span class="qw-tags">
-                  <span class="qw-tag">${qw.impact}</span>
-                  <span class="qw-tag">${qw.effort}</span>
-                </span>
-              </li>
-            `).join('')
-          }</ul>`;
+          if (ai.quickWins && ai.quickWins.length > 0) {
+            winsEl.innerHTML = `<h3>Quick Wins</h3><ul class="qw-list">${
+              ai.quickWins.map((qw) => `
+                <li class="qw-item">
+                  <span class="qw-gain">+${qw.estimatedScoreGain}</span>
+                  <span class="qw-title">${qw.title}</span>
+                  <span class="qw-tags">
+                    <span class="qw-tag">${qw.impact}</span>
+                    <span class="qw-tag">${qw.effort}</span>
+                  </span>
+                </li>
+              `).join('')
+            }</ul>`;
+          }
         }
+
+        // Save to D1 (after AI, so we can include summary)
+        saveAudit(result, ai).then((saved) => {
+          if (saved) {
+            // Add share button
+            const actionsEl = document.querySelector('.report-actions');
+            if (actionsEl) {
+              const shareBtn = document.createElement('button');
+              shareBtn.className = 'export-btn';
+              shareBtn.textContent = 'Share';
+              shareBtn.title = 'Copy share link';
+              shareBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(saved.shareUrl).then(() => {
+                  shareBtn.textContent = 'Copied!';
+                  setTimeout(() => { shareBtn.textContent = 'Share'; }, 2000);
+                });
+              });
+              actionsEl.prepend(shareBtn);
+            }
+          }
+        });
       });
     } catch (err) {
       loadingState.style.display = 'none';
