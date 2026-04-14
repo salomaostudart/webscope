@@ -1,0 +1,148 @@
+/* Design Tokens — WebScope */
+/* Fontes: Oswald (headings) + Inter (body) + JetBrains Mono (code) */
+
+:root {
+  /* Surfaces — dark enterprise theme */
+  --surface-0: #0a0a0f;
+  --surface-1: #111118;
+  --surface-2: #1a1a24;
+  --surface-3: #242432;
+  --surface-4: #2e2e40;
+
+  /* Accent colors */
+  --accent-primary: #818cf8;
+  --accent-primary-active: #4f46e5;
+  --accent-primary-hover: #a5b4fc;
+  --accent-success: #10b981;
+  --accent-success-dim: #065f46;
+  --accent-warning: #f59e0b;
+  --accent-warning-dim: #78350f;
+  --accent-danger: #ef4444;
+  --accent-danger-dim: #7f1d1d;
+
+  /* Grade colors */
+  --grade-a: #22c55e;
+  --grade-b: #84cc16;
+  --grade-c: #f59e0b;
+  --grade-d: #f97316;
+  --grade-f: #ef4444;
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #8892a8;
+  --text-inverse: #0a0a0f;
+
+  /* Borders */
+  --border-default: #242432;
+  --border-hover: #363650;
+  --border-focus: #818cf8;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.15);
+
+  /* Typography */
+  --font-heading: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 56px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* Light mode tokens */
+:root[data-theme="light"] {
+  --surface-0: #f1f5f9;
+  --surface-1: #ffffff;
+  --surface-2: #e8ecf1;
+  --surface-3: #dde3eb;
+  --surface-4: #cbd5e1;
+
+  --accent-primary: #4f46e5;
+  --accent-primary-active: #4338ca;
+  --accent-primary-hover: #6366f1;
+  --accent-success: #059669;
+  --accent-success-dim: #d1fae5;
+  --accent-warning: #d97706;
+  --accent-warning-dim: #fef3c7;
+  --accent-danger: #ef4444;
+  --accent-danger-dim: #fee2e2;
+
+  --grade-a: #16a34a;
+  --grade-b: #65a30d;
+  --grade-c: #d97706;
+  --grade-d: #ea580c;
+  --grade-f: #dc2626;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #f8fafc;
+
+  --border-default: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-focus: #4f46e5;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.1);
+}
+
+/* Accessibility — focus indicators (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Touch targets (WCAG 2.5.8) */
+button, a, [role="button"], input, select, textarea {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+a:not([class]), .nav-link-text {
+  min-height: unset;
+  min-width: unset;
+}

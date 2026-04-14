@@ -1,0 +1,144 @@
+---
+import Sidebar from '../components/layout/Sidebar.astro';
+import ThemeToggle from '../components/layout/ThemeToggle.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  fullWidth?: boolean;
+}
+
+const { title, description = 'Analyze any website for performance, SEO, accessibility, content, branding, and security.', fullWidth = false } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} — WebScope</title>
+  <meta name="description" content={description}>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="sitemap" href="/sitemap-index.xml">
+
+  <!-- Theme initialization (prevent flash) -->
+  <script is:inline>
+    (function() {
+      var theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <Sidebar currentPath={currentPath} />
+
+  <div class:list={['main-wrapper', { 'full-width': fullWidth }]}>
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-spacer"></div>
+      <ThemeToggle />
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content">
+      <slot />
+    </main>
+  </div>
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>
+
+<style>
+  .main-wrapper {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .main-wrapper.full-width {
+    margin-left: 0;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    height: var(--topbar-height);
+    padding: 0 var(--space-6);
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border-default);
+    backdrop-filter: blur(8px);
+  }
+
+  .topbar-spacer { flex: 1; }
+
+  .menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    min-width: 36px;
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .menu-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+  .menu-toggle svg { width: 18px; height: 18px; }
+
+  .page-content {
+    flex: 1;
+    padding: var(--space-8) var(--space-6);
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .main-wrapper {
+      margin-left: 0;
+    }
+    .menu-toggle {
+      display: flex;
+    }
+    .page-content {
+      padding: var(--space-4) var(--space-4);
+    }
+  }
+</style>
+
+<script>
+  // Mobile sidebar toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  function toggleSidebar() {
+    sidebar?.classList.toggle('open');
+    overlay?.classList.toggle('open');
+  }
+
+  menuToggle?.addEventListener('click', toggleSidebar);
+  overlay?.addEventListener('click', toggleSidebar);
+</script>
