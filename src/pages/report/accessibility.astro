@@ -31,8 +31,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
     html += `<div class="a11y-stat"><div class="a11y-stat-value" style="color:var(--grade-f)">${d.violations?.length || 0}</div><div class="a11y-stat-label">Violations</div></div>`;
     html += `<div class="a11y-stat"><div class="a11y-stat-value" style="color:var(--grade-a)">${d.passes || 0}</div><div class="a11y-stat-label">Passed</div></div>`;
     html += `<div class="a11y-stat"><div class="a11y-stat-value" style="color:var(--grade-c)">${d.contrastIssues || 0}</div><div class="a11y-stat-label">Contrast Issues</div></div>`;
-    html += `<div class="a11y-stat"><div class="a11y-stat-value">${d.imagesWithoutAlt || 0}</div><div class="a11y-stat-label">Images No Alt</div></div>`;
-    html += `<div class="a11y-stat"><div class="a11y-stat-value">${d.formsWithoutLabels || 0}</div><div class="a11y-stat-label">Forms No Label</div></div>`;
+    html += `<div class="a11y-stat"><div class="a11y-stat-value">${d.imagesWithoutAlt || 0}</div><div class="a11y-stat-label">Images Without Alt</div></div>`;
+    html += `<div class="a11y-stat"><div class="a11y-stat-value">${d.formsWithoutLabels || 0}</div><div class="a11y-stat-label">Forms Without Label</div></div>`;
     html += '</div>';
 
     // Landmarks

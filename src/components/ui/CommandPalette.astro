@@ -1,0 +1,351 @@
+---
+// CommandPalette — Ctrl+K (or Cmd+K on Mac) overlay for quick navigation
+---
+
+<!-- Modal overlay -->
+<div class="cp-overlay" id="cp-overlay" aria-hidden="true">
+  <div class="cp-modal" role="dialog" aria-label="Command palette" aria-modal="true">
+    <div class="cp-input-wrapper">
+      <svg class="cp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="text"
+        id="cp-input"
+        class="cp-input"
+        placeholder="Search pages, categories..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search pages and categories"
+        aria-autocomplete="list"
+        aria-controls="cp-results"
+      >
+      <kbd class="cp-esc-hint" aria-hidden="true">esc</kbd>
+    </div>
+
+    <ul class="cp-results" id="cp-results" role="listbox" aria-label="Navigation results"></ul>
+
+    <div class="cp-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> select</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cp-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 300;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: clamp(60px, 12vh, 120px);
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  .cp-overlay.open { display: flex; }
+
+  .cp-modal {
+    background: var(--surface-1);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  /* Input row */
+  .cp-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-default);
+  }
+  .cp-search-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+  .cp-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    caret-color: var(--accent-primary);
+  }
+  .cp-input::placeholder { color: var(--text-muted); }
+  .cp-esc-hint {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    background: var(--surface-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+
+  /* Results */
+  .cp-results {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-1) 0;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .cp-results:empty::after {
+    content: 'No results found';
+    display: block;
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .cp-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    border-radius: 0;
+  }
+  .cp-item:hover,
+  .cp-item[aria-selected="true"] {
+    background: var(--surface-2);
+  }
+  .cp-item[aria-selected="true"] .cp-item-label {
+    color: var(--accent-primary);
+  }
+
+  .cp-item-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--surface-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+  .cp-item[aria-selected="true"] .cp-item-icon {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+  .cp-item-icon svg { width: 15px; height: 15px; }
+
+  .cp-item-text { flex: 1; min-width: 0; }
+  .cp-item-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    display: block;
+  }
+  .cp-item-path {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* Footer */
+  .cp-footer {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--border-default);
+    background: var(--surface-2);
+  }
+  .cp-footer span {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .cp-footer kbd {
+    background: var(--surface-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+</style>
+
+<script>
+  interface CommandItem {
+    label: string;
+    path: string;
+    category: string;
+    icon: string;
+  }
+
+  const COMMANDS: CommandItem[] = [
+    { label: 'New Audit',       path: '/',                    category: 'Pages',    icon: 'scan' },
+    { label: 'History',         path: '/history',             category: 'Pages',    icon: 'history' },
+    { label: 'About',           path: '/about',               category: 'Pages',    icon: 'info' },
+    { label: 'Performance',     path: '/report/performance',  category: 'Reports',  icon: 'gauge' },
+    { label: 'SEO',             path: '/report/seo',          category: 'Reports',  icon: 'search' },
+    { label: 'Accessibility',   path: '/report/accessibility',category: 'Reports',  icon: 'a11y' },
+    { label: 'Content',         path: '/report/content',      category: 'Reports',  icon: 'content' },
+    { label: 'Branding',        path: '/report/branding',     category: 'Reports',  icon: 'branding' },
+    { label: 'Security',        path: '/report/security',     category: 'Reports',  icon: 'security' },
+  ];
+
+  // SVG icons per type
+  const ICONS: Record<string, string> = {
+    scan: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
+    history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+    gauge: '<path d="M12 2a10 10 0 1 0 10 10"/><path d="m12 12 4-4"/><path d="M2 12h2"/><path d="M12 2v2"/>',
+    search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+    a11y: '<circle cx="12" cy="7" r="2"/><path d="M7 22V12l5 3 5-3v10"/><path d="M7 13H4"/><path d="M20 13h-3"/>',
+    content: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
+    branding: '<circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>',
+    security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  };
+
+  function buildSvg(iconKey: string) {
+    const path = ICONS[iconKey] ?? ICONS['info'];
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+  }
+
+  function fuzzyMatch(item: CommandItem, query: string): boolean {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return (
+      item.label.toLowerCase().includes(q) ||
+      item.category.toLowerCase().includes(q) ||
+      item.path.toLowerCase().includes(q)
+    );
+  }
+
+  // DOM refs
+  const overlay = document.getElementById('cp-overlay')!;
+  const input = document.getElementById('cp-input') as HTMLInputElement;
+  const resultsList = document.getElementById('cp-results')!;
+
+  let selectedIndex = -1;
+  let visibleItems: CommandItem[] = [];
+
+  function renderResults(query: string) {
+    visibleItems = COMMANDS.filter((item) => fuzzyMatch(item, query));
+    selectedIndex = visibleItems.length > 0 ? 0 : -1;
+
+    resultsList.innerHTML = visibleItems
+      .map(
+        (item, i) => `
+      <li
+        class="cp-item"
+        role="option"
+        aria-selected="${i === 0 ? 'true' : 'false'}"
+        data-index="${i}"
+        data-path="${item.path}"
+      >
+        <span class="cp-item-icon">${buildSvg(item.icon)}</span>
+        <span class="cp-item-text">
+          <span class="cp-item-label">${item.label}</span>
+          <span class="cp-item-path">${item.path}</span>
+        </span>
+      </li>
+    `
+      )
+      .join('');
+
+    // Click handlers
+    resultsList.querySelectorAll('.cp-item').forEach((el) => {
+      el.addEventListener('click', () => {
+        const path = (el as HTMLElement).dataset.path;
+        if (path) navigateTo(path);
+      });
+      el.addEventListener('mouseenter', () => {
+        const idx = parseInt((el as HTMLElement).dataset.index ?? '0', 10);
+        setSelected(idx);
+      });
+    });
+  }
+
+  function setSelected(index: number) {
+    selectedIndex = Math.max(0, Math.min(index, visibleItems.length - 1));
+    resultsList.querySelectorAll('.cp-item').forEach((el, i) => {
+      el.setAttribute('aria-selected', i === selectedIndex ? 'true' : 'false');
+    });
+    // Scroll selected item into view
+    const selected = resultsList.querySelector('[aria-selected="true"]') as HTMLElement | null;
+    selected?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function navigateTo(path: string) {
+    closeModal();
+    window.location.href = path;
+  }
+
+  function openModal() {
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    input.value = '';
+    renderResults('');
+    input.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  // Input handler
+  input.addEventListener('input', () => renderResults(input.value));
+
+  // Keyboard navigation
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelected(selectedIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelected(selectedIndex - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const item = visibleItems[selectedIndex];
+      if (item) navigateTo(item.path);
+    } else if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  // Global keyboard shortcut: Ctrl+K / Cmd+K
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      if (overlay.classList.contains('open')) {
+        closeModal();
+      } else {
+        openModal();
+      }
+    }
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      closeModal();
+    }
+  });
+</script>
