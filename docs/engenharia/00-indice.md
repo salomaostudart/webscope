@@ -13,6 +13,9 @@ Cada arquivo cobre um aspecto em profundidade — nao resumido.
 | 04 | [ci-cd.md](04-ci-cd.md) | GitHub Actions (quando desbloqueado), pipeline, deploy, status checks |
 | 05 | [boas-praticas-dev.md](05-boas-praticas-dev.md) | Full-stack, TypeScript, Astro, CSS, acessibilidade, performance |
 | 06 | [deploy-producao.md](06-deploy-producao.md) | CF Pages, CF Worker, Supabase, custom domain, rollback |
+| 07 | [situacoes-git.md](07-situacoes-git.md) | Commit acidental na main, branch stale, hotfix, cherry-pick, cleanup |
+| 08 | [adrs.md](08-adrs.md) | Architecture Decision Records — formato e decisoes do projeto |
+| 09 | [anti-patterns-testes.md](09-anti-patterns-testes.md) | AAA pattern, anti-patterns comuns, regras praticas |
 
 ## Relacao com docs/plano/
 
