@@ -1,0 +1,132 @@
+---
+interface Props {
+  severity: string;
+  title: string;
+  description: string;
+  recommendation: string;
+  category: string;
+  impact?: string;
+  effort?: string;
+  value?: string;
+  expected?: string;
+}
+
+const { severity, title, description, recommendation, category, impact, effort, value, expected } = Astro.props;
+
+const severityColors: Record<string, string> = {
+  critical: 'var(--accent-danger)',
+  warning: 'var(--accent-warning)',
+  info: 'var(--accent-primary)',
+  pass: 'var(--accent-success)',
+};
+const color = severityColors[severity] || 'var(--text-muted)';
+---
+
+<details class="finding-card">
+  <summary class="finding-summary">
+    <span class="finding-severity" style={`background:${color}`}>{severity}</span>
+    <span class="finding-title">{title}</span>
+    <span class="finding-category">{category}</span>
+  </summary>
+  <div class="finding-body">
+    <p class="finding-description">{description}</p>
+    {(value || expected) && (
+      <div class="finding-values">
+        {value && <span class="finding-value">Current: <strong>{value}</strong></span>}
+        {expected && <span class="finding-expected">Expected: <strong>{expected}</strong></span>}
+      </div>
+    )}
+    <div class="finding-recommendation">
+      <strong>Recommendation:</strong> {recommendation}
+    </div>
+    {(impact || effort) && (
+      <div class="finding-meta">
+        {impact && <span class="finding-tag">Impact: {impact}</span>}
+        {effort && <span class="finding-tag">Effort: {effort}</span>}
+      </div>
+    )}
+  </div>
+</details>
+
+<style>
+  .finding-card {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    margin-bottom: var(--space-2);
+  }
+  .finding-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    list-style: none;
+    min-height: unset;
+  }
+  .finding-summary::-webkit-details-marker { display: none; }
+  .finding-summary::before {
+    content: '▸';
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    transition: transform var(--transition-fast);
+  }
+  details[open] .finding-summary::before { transform: rotate(90deg); }
+  .finding-severity {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    color: var(--text-inverse);
+    flex-shrink: 0;
+  }
+  .finding-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+  }
+  .finding-category {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .finding-body {
+    padding: 0 var(--space-4) var(--space-4);
+    border-top: 1px solid var(--border-default);
+    margin-top: 0;
+    padding-top: var(--space-3);
+  }
+  .finding-description {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+  .finding-values {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+    color: var(--text-secondary);
+  }
+  .finding-recommendation {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+  }
+  .finding-meta {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .finding-tag {
+    font-size: var(--text-xs);
+    padding: 2px 8px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+  }
+</style>

@@ -359,11 +359,8 @@ const categories = [
     }
 
     errorEl.textContent = '';
-    // TODO: redirect to report page after analysis
-    // For now, store in sessionStorage and show a message
     sessionStorage.setItem('webscope_url', url);
-    errorEl.style.color = 'var(--accent-success)';
-    errorEl.textContent = `Analysis of ${url} coming soon — analyzers not yet implemented.`;
+    window.location.href = '/report';
   });
 
   // Example buttons

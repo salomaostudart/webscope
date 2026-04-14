@@ -1,0 +1,45 @@
+---
+interface Props {
+  grade: string;
+  score: number;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { grade, score, size = 'md' } = Astro.props;
+
+const sizeMap = { sm: 48, md: 80, lg: 120 };
+const fontMap = { sm: '1.25rem', md: '2rem', lg: '3rem' };
+const subMap = { sm: '0.625rem', md: '0.75rem', lg: '0.875rem' };
+const px = sizeMap[size];
+---
+
+<div class={`grade-circle grade-${grade.toLowerCase()}`} style={`width:${px}px;height:${px}px`}>
+  <span class="grade-letter" style={`font-size:${fontMap[size]}`}>{grade}</span>
+  <span class="grade-score" style={`font-size:${subMap[size]}`}>{score}</span>
+</div>
+
+<style>
+  .grade-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    border: 3px solid;
+    flex-shrink: 0;
+  }
+  .grade-letter {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1;
+  }
+  .grade-score {
+    color: var(--text-secondary);
+    line-height: 1;
+  }
+  .grade-a { border-color: var(--grade-a); color: var(--grade-a); }
+  .grade-b { border-color: var(--grade-b); color: var(--grade-b); }
+  .grade-c { border-color: var(--grade-c); color: var(--grade-c); }
+  .grade-d { border-color: var(--grade-d); color: var(--grade-d); }
+  .grade-f { border-color: var(--grade-f); color: var(--grade-f); }
+</style>
