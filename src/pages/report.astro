@@ -303,7 +303,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       // Wire up export buttons
       document.getElementById('export-csv')?.addEventListener('click', () => downloadCSV(result));
       document.getElementById('export-md')?.addEventListener('click', () => downloadMarkdown(result));
-      document.getElementById('export-pdf')?.addEventListener('click', () => window.print());
+      document.getElementById('export-pdf')?.addEventListener('click', () => {
+        const allTab = document.querySelector('.tab[data-severity="all"]') as HTMLButtonElement | null;
+        allTab?.click();
+        document.querySelectorAll('details').forEach((d) => d.setAttribute('open', ''));
+        setTimeout(() => window.print(), 100);
+      });
 
       renderReport(result);
 
