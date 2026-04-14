@@ -1,0 +1,318 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const categories = [
+  { name: 'Performance', weight: 20, description: 'Core Web Vitals (LCP, INP, CLS), page load speed, resource optimization, compression, image formats.' },
+  { name: 'SEO', weight: 25, description: 'Title and meta tags, heading hierarchy, alt text, structured data (JSON-LD), Open Graph, canonical URLs, crawlability.' },
+  { name: 'Accessibility', weight: 15, description: 'WCAG 2.1 AA compliance, color contrast, ARIA roles, form labels, landmarks, keyboard navigation, skip links.' },
+  { name: 'Content', weight: 15, description: 'Word count, readability score (Flesch-Kincaid), CTAs, broken links, contact information, social links, favicon.' },
+  { name: 'Branding', weight: 10, description: 'Color palette consistency, font families, logo presence, favicon, Open Graph image, PWA manifest, theme color.' },
+  { name: 'Security', weight: 15, description: 'HTTPS, HSTS, Content Security Policy, X-Frame-Options, mixed content, server header leakage, SRI, form security.' },
+];
+
+const grades = [
+  { grade: 'A', range: '90–100', color: 'var(--grade-a)' },
+  { grade: 'B', range: '80–89', color: 'var(--grade-b)' },
+  { grade: 'C', range: '70–79', color: 'var(--grade-c)' },
+  { grade: 'D', range: '50–69', color: 'var(--grade-d)' },
+  { grade: 'F', range: '0–49', color: 'var(--grade-f)' },
+];
+
+const stack = [
+  { name: 'Astro', role: 'Static site framework', url: 'https://astro.build' },
+  { name: 'TypeScript', role: 'Type safety', url: 'https://www.typescriptlang.org' },
+  { name: 'Apache ECharts', role: 'Charts and visualizations', url: 'https://echarts.apache.org' },
+  { name: 'Cloudflare Pages', role: 'Hosting and CDN', url: 'https://pages.cloudflare.com' },
+  { name: 'Cloudflare Workers', role: 'Proxy API (server-side fetch)', url: 'https://workers.cloudflare.com' },
+  { name: 'Cloudflare D1', role: 'Database (planned)', url: 'https://developers.cloudflare.com/d1/' },
+  { name: 'Cloudflare Workers AI', role: 'AI suggestions (planned)', url: 'https://developers.cloudflare.com/workers-ai/' },
+  { name: 'PageSpeed Insights', role: 'Lighthouse data (Google)', url: 'https://developers.google.com/speed/docs/insights/v5/get-started' },
+];
+---
+
+<BaseLayout title="About" description="Learn how WebScope works — methodology, scoring, stack, and limitations.">
+  <div class="about-page">
+    <header class="about-header">
+      <h1>About WebScope</h1>
+      <p class="about-lead">
+        WebScope is a website intelligence platform that analyzes any public URL
+        across 6 categories and generates a detailed report with scores, findings,
+        and actionable recommendations.
+      </p>
+    </header>
+
+    <!-- How it works -->
+    <section class="about-section" aria-labelledby="how-heading">
+      <h2 id="how-heading">How It Works</h2>
+      <ol class="how-steps">
+        <li>
+          <strong>Enter a URL</strong> — paste any public website address.
+        </li>
+        <li>
+          <strong>We fetch and analyze</strong> — our proxy fetches the page server-side (avoiding CORS),
+          while Google's PageSpeed Insights runs a full Lighthouse audit in parallel.
+        </li>
+        <li>
+          <strong>6 analyzers run</strong> — Performance, SEO, Accessibility, Content, Branding,
+          and Security analyzers process the data simultaneously.
+        </li>
+        <li>
+          <strong>Get your report</strong> — scores (0–100), grades (A–F), prioritized findings,
+          and specific recommendations for each issue.
+        </li>
+      </ol>
+    </section>
+
+    <!-- Categories -->
+    <section class="about-section" aria-labelledby="categories-heading">
+      <h2 id="categories-heading">Analysis Categories</h2>
+      <p>Each category has a weight in the overall score. Categories with higher impact on user experience and business outcomes have higher weights.</p>
+      <div class="category-list">
+        {categories.map((cat) => (
+          <div class="about-category">
+            <div class="category-header">
+              <h3>{cat.name}</h3>
+              <span class="category-weight">{cat.weight}%</span>
+            </div>
+            <p>{cat.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Scoring -->
+    <section class="about-section" aria-labelledby="scoring-heading">
+      <h2 id="scoring-heading">Scoring Methodology</h2>
+      <p>
+        The overall score is a weighted average of all 6 category scores.
+        Each category score is calculated based on the number and severity of findings.
+      </p>
+      <div class="grade-table">
+        {grades.map((g) => (
+          <div class="grade-row">
+            <span class="grade-letter" style={`color: ${g.color}; border-color: ${g.color}`}>{g.grade}</span>
+            <span class="grade-range">{g.range}</span>
+          </div>
+        ))}
+      </div>
+      <p class="severity-note">
+        <strong>Finding severities:</strong> Critical (high impact, deducts most points),
+        Warning (moderate impact), Info (minor, best practice), Pass (check passed).
+      </p>
+    </section>
+
+    <!-- Stack -->
+    <section class="about-section" aria-labelledby="stack-heading">
+      <h2 id="stack-heading">Tech Stack</h2>
+      <p>Built entirely on Cloudflare's free tier — zero hosting cost.</p>
+      <div class="stack-list">
+        {stack.map((s) => (
+          <div class="stack-item">
+            <a href={s.url} target="_blank" rel="noopener">{s.name}</a>
+            <span>{s.role}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Limitations -->
+    <section class="about-section" aria-labelledby="limits-heading">
+      <h2 id="limits-heading">Limitations</h2>
+      <ul class="limits-list">
+        <li>Analyzes one page at a time (not full site crawl)</li>
+        <li>URL must be publicly accessible (no localhost or internal URLs)</li>
+        <li>Lighthouse analysis takes 10–30 seconds (runs on Google's servers)</li>
+        <li>Some checks require Lighthouse data — if PSI API is unavailable, those checks are skipped</li>
+        <li>Does not replace a manual accessibility audit or professional penetration test</li>
+        <li>Content analysis is automated — nuance and context require human review</li>
+      </ul>
+    </section>
+
+    <!-- Credits -->
+    <section class="about-section" aria-labelledby="credits-heading">
+      <h2 id="credits-heading">Credits</h2>
+      <p>
+        Built by <a href="https://salomaostudart.github.io/portfolio" target="_blank" rel="noopener">Salomao Studart</a>.
+        Powered by <a href="https://developer.chrome.com/docs/lighthouse" target="_blank" rel="noopener">Lighthouse</a>,
+        <a href="https://www.deque.com/axe/" target="_blank" rel="noopener">axe-core</a> (via Lighthouse),
+        and <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>.
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    max-width: 800px;
+  }
+
+  .about-header {
+    margin-bottom: var(--space-8);
+  }
+  .about-header h1 {
+    margin-bottom: var(--space-3);
+    color: var(--accent-primary);
+  }
+  .about-lead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-secondary);
+  }
+
+  .about-section {
+    margin-bottom: var(--space-10);
+  }
+  .about-section h2 {
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-default);
+  }
+  .about-section p {
+    margin-bottom: var(--space-3);
+    line-height: var(--leading-relaxed);
+  }
+
+  .how-steps {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+  }
+  .how-steps li {
+    counter-increment: step;
+    padding: var(--space-3) var(--space-4);
+    padding-left: var(--space-10);
+    position: relative;
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    border-left: 2px solid var(--border-default);
+    margin-bottom: var(--space-2);
+  }
+  .how-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: -14px;
+    top: var(--space-3);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-0);
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-full);
+    color: var(--accent-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .how-steps li strong {
+    color: var(--text-primary);
+  }
+
+  .category-list {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .about-category {
+    padding: var(--space-4);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+  }
+  .category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+  .about-category h3 {
+    font-size: var(--text-sm);
+    color: var(--accent-primary);
+  }
+  .category-weight {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    background: var(--surface-3);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+  }
+  .about-category p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: 0;
+  }
+
+  .grade-table {
+    display: flex;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+    flex-wrap: wrap;
+  }
+  .grade-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .grade-letter {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+  .grade-range {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+  .severity-note {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .stack-list {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .stack-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-default);
+    font-size: var(--text-sm);
+  }
+  .stack-item a {
+    font-weight: 600;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  .stack-item span {
+    color: var(--text-muted);
+  }
+
+  .limits-list {
+    padding-left: var(--space-5);
+    color: var(--text-secondary);
+  }
+  .limits-list li {
+    margin-bottom: var(--space-2);
+    line-height: var(--leading-relaxed);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 480px) {
+    .stack-item {
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    .stack-item a { min-width: unset; }
+    .grade-table { gap: var(--space-2); }
+  }
+</style>
