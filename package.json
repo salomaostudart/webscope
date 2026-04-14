@@ -26,7 +26,6 @@
     "deploy": "npm run ci && npx wrangler pages deploy dist --project-name webscope --branch main"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.103.0",
     "astro": "^6.1.5",
     "echarts": "^6.0.0",
     "zod": "^4.3.6"

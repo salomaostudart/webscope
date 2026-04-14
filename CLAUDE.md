@@ -13,8 +13,10 @@ Scores 0-100, findings priorizados, sugestoes de IA.
 - **Design:** Oswald + Inter + JetBrains Mono + CSS tokens
 - **Deploy:** Cloudflare Pages (webscope.sal.dev.br)
 - **Proxy:** Cloudflare Worker (webscope-api)
-- **Backend:** Supabase (Auth + PostgreSQL + Edge Functions)
-- **IA:** Claude Haiku (sugestoes via Edge Function)
+- **Database:** Cloudflare D1 (SQLite, free tier)
+- **IA:** Cloudflare Workers AI (Qwen3/Llama, free tier)
+- **Cache:** Cloudflare KV (free tier)
+- **Auth:** Auth.js + D1 adapter (futuro)
 
 ## Arquitetura
 Analyzer Pattern — cada fonte de analise implementa `IAnalyzer<T>`.
