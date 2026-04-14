@@ -1,5 +1,6 @@
 /* Design Tokens — WebScope */
 /* Fontes: Oswald (headings) + Inter (body) + JetBrains Mono (code) */
+/* Responsive: fluid typography (clamp), dvh, safe areas, container queries */
 
 :root {
   /* Surfaces — dark enterprise theme */
@@ -38,7 +39,7 @@
   --border-hover: #363650;
   --border-focus: #818cf8;
 
-  /* Spacing scale (4px base) */
+  /* Spacing scale (4px base) — fluid between mobile and desktop */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -63,26 +64,27 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.15);
 
-  /* Typography */
+  /* Typography — fluid with clamp() */
   --font-heading: 'Oswald', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
+  --text-xs: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
+  --text-sm: clamp(0.8125rem, 0.775rem + 0.15vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.875rem + 0.25vw, 1rem);
+  --text-lg: clamp(1rem, 0.925rem + 0.3vw, 1.125rem);
+  --text-xl: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+  --text-2xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-3xl: clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem);
+  --text-4xl: clamp(1.75rem, 1.3rem + 1.8vw, 2.25rem);
 
   --leading-tight: 1.25;
   --leading-normal: 1.5;
   --leading-relaxed: 1.625;
 
-  /* Layout */
+  /* Layout — responsive sidebar */
   --sidebar-width: 240px;
+  --sidebar-width-collapsed: 0px;
   --topbar-height: 56px;
 
   /* Transitions */
@@ -136,13 +138,24 @@
   outline-offset: 2px;
 }
 
-/* Touch targets (WCAG 2.5.8) */
-button, a, [role="button"], input, select, textarea {
+/* Touch targets (WCAG 2.5.8) — 44px minimum */
+button, [role="button"], input, select, textarea {
   min-height: 44px;
   min-width: 44px;
 }
 
-a:not([class]), .nav-link-text {
+/* Links don't need 44px min (inline text) */
+a {
   min-height: unset;
   min-width: unset;
+}
+
+/* Safe area insets — iOS notch, Dynamic Island, Android gesture bar */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }

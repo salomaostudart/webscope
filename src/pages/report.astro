@@ -100,7 +100,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .overall-section {
     display: flex; align-items: center; gap: var(--space-6);
-    padding: var(--space-6);
+    padding: clamp(var(--space-4), 2vw, var(--space-6));
     background: var(--surface-2); border: 1px solid var(--border-default);
     border-radius: var(--radius-lg); margin-bottom: var(--space-6);
   }
@@ -108,18 +108,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .score-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     gap: var(--space-4);
     margin-bottom: var(--space-6);
+    container-type: inline-size;
   }
 
   .chart-section {
     background: var(--surface-2); border: 1px solid var(--border-default);
-    border-radius: var(--radius-lg); padding: var(--space-6);
+    border-radius: var(--radius-lg); padding: clamp(var(--space-4), 2vw, var(--space-6));
     margin-bottom: var(--space-6);
   }
   .chart-section h2 { margin-bottom: var(--space-4); color: var(--text-primary); }
-  .radar-container { width: 100%; height: 350px; }
+  .radar-container { width: 100%; height: clamp(250px, 40vw, 400px); }
 
   .findings-section { margin-bottom: var(--space-8); }
   .findings-section h2 { margin-bottom: var(--space-4); color: var(--text-primary); }
@@ -137,7 +138,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   @media (max-width: 768px) {
     .overall-section { flex-direction: column; text-align: center; }
-    .score-grid { grid-template-columns: 1fr 1fr; }
+    .score-grid { grid-template-columns: repeat(2, 1fr); }
+    .findings-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
   }
   @media (max-width: 480px) {
     .score-grid { grid-template-columns: 1fr; }
