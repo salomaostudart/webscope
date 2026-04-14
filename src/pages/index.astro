@@ -348,6 +348,10 @@ const categories = [
     return trimmed;
   }
 
+  const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement;
+  const btnText = analyzeBtn?.querySelector('.btn-text');
+  const btnIcon = analyzeBtn?.querySelector('.btn-icon') as SVGElement;
+
   // Form submit
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -361,6 +365,12 @@ const categories = [
     }
 
     errorEl.textContent = '';
+
+    // Loading state
+    if (analyzeBtn) analyzeBtn.disabled = true;
+    if (btnText) btnText.textContent = 'Analyzing...';
+    if (btnIcon) btnIcon.style.display = 'none';
+
     sessionStorage.setItem('webscope_url', url);
     window.location.href = '/report';
   });

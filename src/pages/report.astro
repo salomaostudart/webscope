@@ -105,7 +105,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .report-header { margin-bottom: var(--space-6); }
   .report-url-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
-  .report-url { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-primary); word-break: break-all; }
+  .report-url {
+    font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+  }
+  .report-url:hover { white-space: normal; word-break: break-all; }
   .report-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
   .report-date { font-size: var(--text-xs); color: var(--text-muted); }
   .export-btn {
@@ -319,6 +323,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   async function renderRadarChart(result: AuditResult) {
+    const container = document.getElementById('radar-chart')!;
+    const labels: Record<string, string> = {
+      performance: 'Performance', seo: 'SEO', accessibility: 'Accessibility',
+      content: 'Content', branding: 'Branding', security: 'Security',
+    };
+
+    // Mobile (<500px): use horizontal bars instead of radar (more readable)
+    if (window.innerWidth < 500) {
+      renderBarsFallback(container, result, labels);
+      return;
+    }
+
     const echarts = await import('echarts/core');
     const { RadarChart } = await import('echarts/charts');
     const { TitleComponent, TooltipComponent, RadarComponent } = await import('echarts/components');
@@ -326,25 +342,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     echarts.use([RadarChart, TitleComponent, TooltipComponent, RadarComponent, CanvasRenderer]);
 
-    const container = document.getElementById('radar-chart')!;
     const chart = echarts.init(container, undefined, { renderer: 'canvas' });
 
-    const names = result.results.map((r) => {
-      const labels: Record<string, string> = {
-        performance: 'Performance', seo: 'SEO', accessibility: 'Accessibility',
-        content: 'Content', branding: 'Branding', security: 'Security',
-      };
-      return labels[r.analyzer] || r.analyzer;
-    });
+    const names = result.results.map((r) => labels[r.analyzer] || r.analyzer);
 
     chart.setOption({
       radar: {
         indicator: names.map((name) => ({ name, max: 100 })),
         shape: 'polygon',
-        axisName: { color: 'var(--text-secondary)' },
+        axisName: { color: '#94a3b8', fontSize: 12 },
         splitArea: { areaStyle: { color: ['rgba(129,140,248,0.02)', 'rgba(129,140,248,0.05)'] } },
-        splitLine: { lineStyle: { color: 'var(--border-default)' } },
-        axisLine: { lineStyle: { color: 'var(--border-default)' } },
+        splitLine: { lineStyle: { color: '#242432' } },
+        axisLine: { lineStyle: { color: '#242432' } },
       },
       series: [{
         type: 'radar',
@@ -358,6 +367,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
 
     window.addEventListener('resize', () => chart.resize());
+  }
+
+  function renderBarsFallback(container: HTMLElement, result: AuditResult, labels: Record<string, string>) {
+    const gradeColors: Record<string, string> = {
+      A: '#22c55e', B: '#84cc16', C: '#f59e0b', D: '#f97316', F: '#ef4444',
+    };
+    container.style.height = 'auto';
+    container.innerHTML = result.results.map((r) => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="min-width:90px;font-size:13px;color:#94a3b8">${labels[r.analyzer] || r.analyzer}</span>
+        <div style="flex:1;height:24px;background:#1a1a24;border-radius:4px;overflow:hidden;position:relative">
+          <div style="width:${r.score}%;height:100%;background:${gradeColors[r.grade]};border-radius:4px;transition:width 0.5s ease"></div>
+        </div>
+        <span style="min-width:32px;text-align:right;font-family:var(--font-heading);font-size:14px;font-weight:600;color:${gradeColors[r.grade]}">${r.score}</span>
+      </div>
+    `).join('');
   }
 
   function renderFindings(result: AuditResult) {

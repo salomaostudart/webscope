@@ -78,9 +78,10 @@ const isReportPage = currentPath.startsWith('/report');
   </nav>
 
   <div class="sidebar-footer">
-    <a href="/login" class="nav-link login-link">
-      <span class="nav-link-text">Login</span>
-    </a>
+    <span class="nav-link access-badge" id="access-badge" style="display:none">
+      <span class="badge-dot"></span>
+      <span class="nav-link-text">Preview Access</span>
+    </span>
   </div>
 </aside>
 
@@ -187,8 +188,20 @@ const isReportPage = currentPath.startsWith('/report');
     padding: var(--space-3) 0;
     border-top: 1px solid var(--border-default);
     flex-shrink: 0;
-    /* Safe area for bottom gesture bar */
     padding-bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
+  }
+
+  .access-badge {
+    cursor: default;
+    color: var(--accent-success) !important;
+    font-size: var(--text-xs);
+    gap: var(--space-2);
+  }
+  .badge-dot {
+    width: 8px; height: 8px;
+    background: var(--accent-success);
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
   }
 
   .sidebar-overlay {
@@ -219,3 +232,9 @@ const isReportPage = currentPath.startsWith('/report');
     overflow: hidden;
   }
 </style>
+
+<script>
+  // If user is viewing the app (passed middleware), show access badge
+  const badge = document.getElementById('access-badge');
+  if (badge) badge.style.display = 'flex';
+</script>
