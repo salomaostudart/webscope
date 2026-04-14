@@ -5,6 +5,5 @@ compatibility_date = "2025-04-01"
 [vars]
 ALLOWED_ORIGIN = "https://webscope.sal.dev.br"
 
-# Rate limiting via Durable Objects (future)
-# [durable_objects]
-# bindings = [{ name = "RATE_LIMITER", class_name = "RateLimiter" }]
+[ai]
+binding = "AI"
