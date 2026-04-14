@@ -1,10 +1,12 @@
 import type { IAnalyzer, AnalysisInput, AuditResult, Finding } from './base/analyzer.interface';
 import { scoreToGrade, sortBySeverity } from '../utils/scoring';
 import { PerformanceAnalyzer } from './performance/performance.analyzer';
+import { SEOAnalyzer } from './seo/seo.analyzer';
 
 export const analyzers: IAnalyzer[] = [
   new PerformanceAnalyzer(),
-  // Future: SEOAnalyzer, AccessibilityAnalyzer, ContentAnalyzer, BrandingAnalyzer, SecurityAnalyzer
+  new SEOAnalyzer(),
+  // Future: AccessibilityAnalyzer, ContentAnalyzer, BrandingAnalyzer, SecurityAnalyzer
 ];
 
 export async function runFullAudit(input: AnalysisInput): Promise<AuditResult> {
