@@ -1,12 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const exampleUrls = [
-  { label: 'growth.sal.dev.br', url: 'https://growth.sal.dev.br' },
-  { label: 'Portfolio', url: 'https://salomaostudart.github.io/portfolio' },
-  { label: 'Landing Barbearia', url: 'https://salomaostudart.github.io/landing-barbearia' },
-];
-
 const categories = [
   { name: 'Performance', description: 'Core Web Vitals, page speed, resource optimization', icon: 'zap' },
   { name: 'SEO', description: 'Meta tags, headings, structured data, crawlability', icon: 'search' },
@@ -45,15 +39,6 @@ const categories = [
       </div>
       <p class="input-error" id="input-error" role="alert" aria-live="polite"></p>
     </form>
-
-    <div class="examples">
-      <span class="examples-label">Try with:</span>
-      {exampleUrls.map((ex) => (
-        <button class="example-btn" data-url={ex.url} type="button">
-          {ex.label}
-        </button>
-      ))}
-    </div>
   </div>
 
   <div class="divider"></div>
@@ -182,38 +167,6 @@ const categories = [
     padding-left: var(--space-4);
   }
 
-  .examples {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .examples-label {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-  }
-
-  .example-btn {
-    padding: var(--space-2) var(--space-3);
-    background: var(--surface-2);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-full);
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    min-height: 44px;
-    min-width: 44px;
-  }
-  .example-btn:hover {
-    border-color: var(--accent-primary);
-    color: var(--accent-primary);
-    background: rgba(129, 140, 248, 0.08);
-  }
-
   .divider {
     width: 48px;
     height: 2px;
@@ -328,7 +281,6 @@ const categories = [
   const form = document.getElementById('scanner-form') as HTMLFormElement;
   const urlInput = document.getElementById('url-input') as HTMLInputElement;
   const errorEl = document.getElementById('input-error') as HTMLParagraphElement;
-  const exampleBtns = document.querySelectorAll('.example-btn');
 
   // URL validation
   function isValidUrl(str: string): boolean {
@@ -373,15 +325,6 @@ const categories = [
 
     sessionStorage.setItem('webscope_url', url);
     window.location.href = '/report';
-  });
-
-  // Example buttons
-  exampleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const url = (btn as HTMLButtonElement).dataset.url || '';
-      urlInput.value = url;
-      urlInput.focus();
-    });
   });
 
   // Clear error on input

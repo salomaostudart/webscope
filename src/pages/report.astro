@@ -243,9 +243,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .overall-section { flex-direction: column; text-align: center; }
     .score-grid { grid-template-columns: repeat(2, 1fr); }
     .findings-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .report-actions { flex-wrap: wrap; }
+    .overall-info h1 { font-size: var(--text-xl); }
+    .qw-tags { display: none; }
   }
   @media (max-width: 480px) {
     .score-grid { grid-template-columns: 1fr; }
+    .report-url { max-width: 100%; }
+    .report-url-row { flex-direction: column; align-items: flex-start; }
   }
   /* export-btn applied to dynamic Share button — ensure it matches static buttons */
   :global(.export-btn) {

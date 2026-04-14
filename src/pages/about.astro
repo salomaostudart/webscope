@@ -307,6 +307,11 @@ const stack = [
     font-size: var(--text-sm);
   }
 
+  @media (max-width: 768px) {
+    .category-list { gap: var(--space-2); }
+    .about-lead { font-size: var(--text-base); }
+  }
+
   @media (max-width: 480px) {
     .stack-item {
       flex-direction: column;
@@ -314,5 +319,8 @@ const stack = [
     }
     .stack-item a { min-width: unset; }
     .grade-table { gap: var(--space-2); }
+    .how-steps li {
+      padding-left: var(--space-8);
+    }
   }
 </style>

@@ -160,6 +160,18 @@
     font-family: var(--font-mono);
   }
 
+  @media (max-width: 480px) {
+    .cp-modal { border-radius: 0; }
+    .cp-overlay {
+      align-items: flex-end;
+      padding-top: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .cp-item { min-height: 44px; }
+    .cp-footer { display: none; }
+  }
+
   /* Footer */
   .cp-footer {
     display: flex;
