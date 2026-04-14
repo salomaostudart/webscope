@@ -113,7 +113,7 @@ export default {
 
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: { ...cors, 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' } });
+      return new Response(null, { status: 204, headers: cors });
     }
 
     const url = new URL(request.url);

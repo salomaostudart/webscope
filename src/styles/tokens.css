@@ -93,43 +93,43 @@
   --transition-slow: 350ms ease;
 }
 
-/* Light mode tokens */
+/* Light mode tokens — increased contrast between surfaces */
 :root[data-theme="light"] {
-  --surface-0: #f1f5f9;
-  --surface-1: #ffffff;
-  --surface-2: #e8ecf1;
-  --surface-3: #dde3eb;
-  --surface-4: #cbd5e1;
+  --surface-0: #e2e8f0;   /* page bg — clearly tinted */
+  --surface-1: #ffffff;   /* sidebar/topbar */
+  --surface-2: #f8fafc;   /* content cards */
+  --surface-3: #eef2f7;   /* nested/elevated */
+  --surface-4: #d8dee8;
 
-  --accent-primary: #4f46e5;
-  --accent-primary-active: #4338ca;
-  --accent-primary-hover: #6366f1;
-  --accent-success: #059669;
+  --accent-primary: #4338ca;
+  --accent-primary-active: #3730a3;
+  --accent-primary-hover: #4f46e5;
+  --accent-success: #047857;
   --accent-success-dim: #d1fae5;
-  --accent-warning: #d97706;
+  --accent-warning: #b45309;
   --accent-warning-dim: #fef3c7;
-  --accent-danger: #ef4444;
+  --accent-danger: #dc2626;
   --accent-danger-dim: #fee2e2;
 
-  --grade-a: #16a34a;
-  --grade-b: #65a30d;
-  --grade-c: #d97706;
-  --grade-d: #ea580c;
-  --grade-f: #dc2626;
+  --grade-a: #15803d;
+  --grade-b: #4d7c0f;
+  --grade-c: #b45309;
+  --grade-d: #c2410c;
+  --grade-f: #b91c1c;
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
   --text-muted: #64748b;
   --text-inverse: #f8fafc;
 
-  --border-default: #e2e8f0;
-  --border-hover: #cbd5e1;
-  --border-focus: #4f46e5;
+  --border-default: #cbd5e1;   /* stronger borders for cards */
+  --border-hover: #94a3b8;
+  --border-focus: #4338ca;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.1);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 0 3px rgba(67, 56, 202, 0.15);
 }
 
 /* Accessibility — focus indicators (WCAG 2.4.7) */

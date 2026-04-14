@@ -521,6 +521,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <script>
   import { listAudits, compareAudits, clearAllAudits } from '../lib/db';
+  import { confirmDialog } from '../utils/confirm';
+  import { showToast } from '../utils/toast';
   import type { AuditSummary, AuditComparison } from '../lib/db';
   import { escapeHtml } from '../utils/sanitize';
 
@@ -751,7 +753,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   // Clear all audits handler
   document.getElementById('clear-btn')?.addEventListener('click', async () => {
-    if (!confirm('Clear all audit history? This will remove every saved audit for all users. This cannot be undone.')) return;
+    const confirmed = await confirmDialog({
+      title: 'Clear all history?',
+      message: 'This will remove every saved audit for all users. This cannot be undone.',
+      confirmText: 'Clear all',
+      cancelText: 'Cancel',
+      danger: true,
+    });
+    if (!confirmed) return;
+
     const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
     if (clearBtn) {
       clearBtn.disabled = true;
@@ -761,8 +771,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     if (ok) {
       selected.clear();
       await loadAudits();
+      showToast('History cleared', 'success');
     } else {
-      alert('Failed to clear history. Try again.');
+      showToast('Failed to clear history. Try again.', 'error');
     }
     if (clearBtn) {
       clearBtn.disabled = false;

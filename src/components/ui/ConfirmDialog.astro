@@ -1,0 +1,123 @@
+---
+/**
+ * Confirm dialog system — replaces native confirm().
+ * Usage:
+ *   import { confirmDialog } from '../utils/confirm';
+ *   const ok = await confirmDialog({ title: 'Delete?', message: '...', confirmText: 'Delete', danger: true });
+ */
+---
+
+<div id="confirm-dialog" class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" hidden>
+  <div class="confirm-modal">
+    <h3 class="confirm-title" id="confirm-title"></h3>
+    <p class="confirm-message" id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button type="button" class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
+      <button type="button" class="confirm-btn confirm-ok" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    animation: confirm-fade-in 0.15s ease;
+  }
+  .confirm-overlay[hidden] { display: none; }
+
+  .confirm-modal {
+    background: var(--surface-1);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    animation: confirm-scale-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .confirm-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-2) 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .confirm-message {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-5) 0;
+    line-height: 1.5;
+  }
+
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .confirm-btn {
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 40px;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+  }
+
+  .confirm-cancel {
+    background: transparent;
+    border-color: var(--border-default);
+    color: var(--text-secondary);
+  }
+  .confirm-cancel:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--surface-2);
+  }
+
+  .confirm-ok {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+  }
+  .confirm-ok:hover {
+    background: var(--accent-primary-active);
+    border-color: var(--accent-primary-active);
+  }
+
+  .confirm-ok.confirm-danger {
+    background: var(--accent-danger);
+    border-color: var(--accent-danger);
+  }
+  .confirm-ok.confirm-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+  }
+
+  @keyframes confirm-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes confirm-scale-in {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .confirm-overlay, .confirm-modal { animation: none; }
+  }
+</style>
