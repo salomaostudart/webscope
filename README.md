@@ -4,7 +4,7 @@ Website intelligence platform — analyze any URL for performance, SEO, accessib
 
 ## Status
 
-Work in progress. Currently in Fase 1 (project setup + first analyzers).
+Work in progress. Currently in Phase 1 (project setup + first analyzers).
 
 ## Stack
 

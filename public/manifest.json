@@ -1,0 +1,13 @@
+{
+  "name": "WebScope — Website Intelligence",
+  "short_name": "WebScope",
+  "description": "Analyze any website for performance, SEO, accessibility, content, branding, and security.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#818cf8",
+  "orientation": "any",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

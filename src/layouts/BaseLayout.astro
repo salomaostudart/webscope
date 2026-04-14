@@ -2,6 +2,7 @@
 import Sidebar from '../components/layout/Sidebar.astro';
 import ThemeToggle from '../components/layout/ThemeToggle.astro';
 import FeedbackButton from '../components/ui/FeedbackButton.astro';
+import CommandPalette from '../components/ui/CommandPalette.astro';
 
 interface Props {
   title: string;
@@ -22,6 +23,7 @@ const currentPath = Astro.url.pathname;
   <meta name="description" content={description}>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
   <link rel="sitemap" href="/sitemap-index.xml">
   <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -65,6 +67,7 @@ const currentPath = Astro.url.pathname;
   </div>
 
   <FeedbackButton />
+  <CommandPalette />
 </body>
 </html>
 
