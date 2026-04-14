@@ -1,0 +1,103 @@
+---
+import { scoreToGrade } from '../../utils/scoring';
+
+interface Props {
+  name: string;
+  displayName: string;
+  score: number;
+  href?: string;
+}
+
+const { name, displayName, score, href } = Astro.props;
+const grade = scoreToGrade(score);
+---
+
+<a class={`score-card grade-border-${grade.toLowerCase()}`} href={href || '#'} data-analyzer={name}>
+  <div class="score-card-header">
+    <span class="score-card-name">{displayName}</span>
+    <span class={`score-card-grade grade-text-${grade.toLowerCase()}`}>{grade}</span>
+  </div>
+  <div class="score-card-score">
+    <span class="score-card-number">{score}</span>
+    <span class="score-card-max">/100</span>
+  </div>
+  <div class="score-card-bar">
+    <div class={`score-card-fill grade-bg-${grade.toLowerCase()}`} style={`width:${score}%`}></div>
+  </div>
+</a>
+
+<style>
+  .score-card {
+    display: block;
+    padding: var(--space-4);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    min-height: unset;
+    min-width: unset;
+  }
+  .score-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .score-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+  .score-card-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+  }
+  .score-card-grade {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+  .score-card-score {
+    margin-bottom: var(--space-2);
+  }
+  .score-card-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .score-card-max {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+  .score-card-bar {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .score-card-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-base);
+  }
+  .grade-border-a { border-left: 3px solid var(--grade-a); }
+  .grade-border-b { border-left: 3px solid var(--grade-b); }
+  .grade-border-c { border-left: 3px solid var(--grade-c); }
+  .grade-border-d { border-left: 3px solid var(--grade-d); }
+  .grade-border-f { border-left: 3px solid var(--grade-f); }
+  .grade-text-a { color: var(--grade-a); }
+  .grade-text-b { color: var(--grade-b); }
+  .grade-text-c { color: var(--grade-c); }
+  .grade-text-d { color: var(--grade-d); }
+  .grade-text-f { color: var(--grade-f); }
+  .grade-bg-a { background: var(--grade-a); }
+  .grade-bg-b { background: var(--grade-b); }
+  .grade-bg-c { background: var(--grade-c); }
+  .grade-bg-d { background: var(--grade-d); }
+  .grade-bg-f { background: var(--grade-f); }
+</style>

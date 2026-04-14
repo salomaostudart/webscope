@@ -1,0 +1,323 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Report">
+  <!-- Loading state (shown while analyzing) -->
+  <div id="loading-state" class="loading-state" style="display:none">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2 id="loading-title">Analyzing...</h2>
+      <p id="loading-message" class="loading-msg">Fetching page...</p>
+      <p class="loading-note">This may take 10-30 seconds (Lighthouse analysis)</p>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" class="error-state" style="display:none">
+    <h2>Analysis Failed</h2>
+    <p id="error-message" class="error-msg"></p>
+    <a href="/" class="back-link">Try another URL</a>
+  </div>
+
+  <!-- Report (shown after analysis completes) -->
+  <div id="report-state" style="display:none">
+    <!-- Header -->
+    <div class="report-header">
+      <div class="report-url-row">
+        <span class="report-url" id="report-url"></span>
+        <span class="report-date" id="report-date"></span>
+      </div>
+    </div>
+
+    <!-- Overall score -->
+    <div class="overall-section">
+      <div class="overall-circle" id="overall-circle"></div>
+      <div class="overall-info">
+        <h1>Overall Score: <span id="overall-score"></span>/100</h1>
+      </div>
+    </div>
+
+    <!-- Score cards grid -->
+    <div class="score-grid" id="score-grid"></div>
+
+    <!-- Radar chart -->
+    <div class="chart-section">
+      <h2>Score Overview</h2>
+      <div id="radar-chart" class="radar-container"></div>
+    </div>
+
+    <!-- Findings -->
+    <div class="findings-section">
+      <h2>Findings</h2>
+      <div class="findings-tabs">
+        <button class="tab active" data-severity="all">All</button>
+        <button class="tab" data-severity="critical">Critical</button>
+        <button class="tab" data-severity="warning">Warning</button>
+        <button class="tab" data-severity="info">Info</button>
+        <button class="tab" data-severity="pass">Pass</button>
+      </div>
+      <div id="findings-list" class="findings-list"></div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .loading-state {
+    text-align: center;
+    padding: var(--space-16) 0;
+  }
+  .loading-content { max-width: 400px; margin: 0 auto; }
+  .loading-spinner {
+    width: 48px; height: 48px; margin: 0 auto var(--space-4);
+    border: 4px solid var(--surface-3);
+    border-top-color: var(--accent-primary);
+    border-radius: var(--radius-full);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state h2 { color: var(--accent-primary); margin-bottom: var(--space-2); }
+  .loading-msg { color: var(--text-secondary); }
+  .loading-note { color: var(--text-muted); font-size: var(--text-xs); margin-top: var(--space-4); }
+
+  .error-state { text-align: center; padding: var(--space-16) 0; }
+  .error-state h2 { color: var(--accent-danger); margin-bottom: var(--space-2); }
+  .error-msg { color: var(--text-secondary); margin-bottom: var(--space-4); }
+  .back-link {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    min-height: unset;
+  }
+
+  .report-header { margin-bottom: var(--space-6); }
+  .report-url-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+  .report-url { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-primary); word-break: break-all; }
+  .report-date { font-size: var(--text-xs); color: var(--text-muted); }
+
+  .overall-section {
+    display: flex; align-items: center; gap: var(--space-6);
+    padding: var(--space-6);
+    background: var(--surface-2); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); margin-bottom: var(--space-6);
+  }
+  .overall-info h1 { font-size: var(--text-2xl); color: var(--text-primary); }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .chart-section {
+    background: var(--surface-2); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .chart-section h2 { margin-bottom: var(--space-4); color: var(--text-primary); }
+  .radar-container { width: 100%; height: 350px; }
+
+  .findings-section { margin-bottom: var(--space-8); }
+  .findings-section h2 { margin-bottom: var(--space-4); color: var(--text-primary); }
+  .findings-tabs { display: flex; gap: var(--space-1); margin-bottom: var(--space-4); flex-wrap: wrap; }
+  .tab {
+    padding: var(--space-1) var(--space-3);
+    background: var(--surface-2); border: 1px solid var(--border-default);
+    border-radius: var(--radius-full); font-size: var(--text-sm);
+    color: var(--text-secondary); cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 32px; min-width: unset;
+  }
+  .tab:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .tab.active { background: var(--accent-primary); color: var(--text-inverse); border-color: var(--accent-primary); }
+
+  @media (max-width: 768px) {
+    .overall-section { flex-direction: column; text-align: center; }
+    .score-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .score-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  import { scanUrl } from '../lib/scanner';
+  import type { AuditResult } from '../analyzers/base/analyzer.interface';
+  import { scoreToGrade } from '../utils/scoring';
+
+  const loadingState = document.getElementById('loading-state')!;
+  const errorState = document.getElementById('error-state')!;
+  const reportState = document.getElementById('report-state')!;
+  const loadingTitle = document.getElementById('loading-title')!;
+  const loadingMessage = document.getElementById('loading-message')!;
+  const errorMessage = document.getElementById('error-message')!;
+
+  // Get URL from sessionStorage (set by home page form)
+  const targetUrl = sessionStorage.getItem('webscope_url');
+
+  if (!targetUrl) {
+    window.location.href = '/';
+  } else {
+    runScan(targetUrl);
+  }
+
+  async function runScan(url: string) {
+    loadingState.style.display = 'block';
+
+    try {
+      const result = await scanUrl(url, (progress) => {
+        loadingTitle.textContent = progress.phase === 'complete' ? 'Done!' : 'Analyzing...';
+        loadingMessage.textContent = progress.message;
+      });
+
+      // Cache result for drill-down pages
+      sessionStorage.setItem('webscope_result', JSON.stringify(result));
+
+      renderReport(result);
+    } catch (err) {
+      loadingState.style.display = 'none';
+      errorState.style.display = 'block';
+      errorMessage.textContent = err instanceof Error ? err.message : 'Unknown error occurred';
+    }
+  }
+
+  function renderReport(result: AuditResult) {
+    loadingState.style.display = 'none';
+    reportState.style.display = 'block';
+
+    // URL + date
+    document.getElementById('report-url')!.textContent = result.url;
+    document.getElementById('report-date')!.textContent = `Analyzed: ${new Date(result.analyzedAt).toLocaleString()}`;
+
+    // Overall score circle
+    const grade = result.overallGrade;
+    const circleEl = document.getElementById('overall-circle')!;
+    circleEl.innerHTML = `
+      <div class="grade-circle grade-${grade.toLowerCase()}" style="width:100px;height:100px">
+        <span style="font-family:var(--font-heading);font-size:2.5rem;font-weight:600;line-height:1">${grade}</span>
+        <span style="font-size:0.75rem;color:var(--text-secondary)">${result.overallScore}</span>
+      </div>
+    `;
+    document.getElementById('overall-score')!.textContent = String(result.overallScore);
+
+    // Score cards
+    const grid = document.getElementById('score-grid')!;
+    const analyzerNames: Record<string, string> = {
+      performance: 'Performance', seo: 'SEO', accessibility: 'Accessibility',
+      content: 'Content', branding: 'Branding', security: 'Security',
+    };
+    grid.innerHTML = result.results.map((r) => `
+      <a class="score-card grade-border-${r.grade.toLowerCase()}" href="/report/${r.analyzer}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2)">
+          <span style="font-family:var(--font-heading);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:0.04em;color:var(--text-primary)">${analyzerNames[r.analyzer] || r.analyzer}</span>
+          <span class="grade-text-${r.grade.toLowerCase()}" style="font-family:var(--font-heading);font-size:var(--text-lg);font-weight:600">${r.grade}</span>
+        </div>
+        <div style="margin-bottom:var(--space-2)">
+          <span style="font-family:var(--font-heading);font-size:var(--text-2xl);font-weight:600;color:var(--text-primary)">${r.score}</span>
+          <span style="font-size:var(--text-sm);color:var(--text-muted)">/100</span>
+        </div>
+        <div style="height:4px;background:var(--surface-3);border-radius:var(--radius-full);overflow:hidden">
+          <div class="grade-bg-${r.grade.toLowerCase()}" style="height:100%;width:${r.score}%;border-radius:var(--radius-full)"></div>
+        </div>
+      </a>
+    `).join('');
+
+    // Radar chart
+    renderRadarChart(result);
+
+    // Findings
+    renderFindings(result);
+  }
+
+  async function renderRadarChart(result: AuditResult) {
+    const echarts = await import('echarts/core');
+    const { RadarChart } = await import('echarts/charts');
+    const { TitleComponent, TooltipComponent, RadarComponent } = await import('echarts/components');
+    const { CanvasRenderer } = await import('echarts/renderers');
+
+    echarts.use([RadarChart, TitleComponent, TooltipComponent, RadarComponent, CanvasRenderer]);
+
+    const container = document.getElementById('radar-chart')!;
+    const chart = echarts.init(container, undefined, { renderer: 'canvas' });
+
+    const names = result.results.map((r) => {
+      const labels: Record<string, string> = {
+        performance: 'Performance', seo: 'SEO', accessibility: 'Accessibility',
+        content: 'Content', branding: 'Branding', security: 'Security',
+      };
+      return labels[r.analyzer] || r.analyzer;
+    });
+
+    chart.setOption({
+      radar: {
+        indicator: names.map((name) => ({ name, max: 100 })),
+        shape: 'polygon',
+        axisName: { color: 'var(--text-secondary)' },
+        splitArea: { areaStyle: { color: ['rgba(129,140,248,0.02)', 'rgba(129,140,248,0.05)'] } },
+        splitLine: { lineStyle: { color: 'var(--border-default)' } },
+        axisLine: { lineStyle: { color: 'var(--border-default)' } },
+      },
+      series: [{
+        type: 'radar',
+        data: [{
+          value: result.results.map((r) => r.score),
+          areaStyle: { color: 'rgba(129,140,248,0.2)' },
+          lineStyle: { color: '#818cf8', width: 2 },
+          itemStyle: { color: '#818cf8' },
+        }],
+      }],
+    });
+
+    window.addEventListener('resize', () => chart.resize());
+  }
+
+  function renderFindings(result: AuditResult) {
+    const list = document.getElementById('findings-list')!;
+    const allFindings = result.allFindings;
+
+    function renderList(severity: string) {
+      const filtered = severity === 'all' ? allFindings : allFindings.filter((f) => f.severity === severity);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted);padding:var(--space-4)">No findings in this category.</p>';
+        return;
+      }
+
+      const severityColors: Record<string, string> = {
+        critical: 'var(--accent-danger)', warning: 'var(--accent-warning)',
+        info: 'var(--accent-primary)', pass: 'var(--accent-success)',
+      };
+
+      list.innerHTML = filtered.map((f) => `
+        <details class="finding-card">
+          <summary class="finding-summary">
+            <span class="finding-severity" style="background:${severityColors[f.severity] || 'var(--text-muted)'}">${f.severity}</span>
+            <span class="finding-title">${f.title}</span>
+            <span class="finding-category">${f.category}</span>
+          </summary>
+          <div class="finding-body">
+            <p class="finding-description">${f.description}</p>
+            ${f.value || f.expected ? `<div class="finding-values">${f.value ? `<span>Current: <strong>${f.value}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${f.expected}</strong></span>` : ''}</div>` : ''}
+            <div class="finding-recommendation"><strong>Recommendation:</strong> ${f.recommendation}</div>
+            ${f.impact || f.effort ? `<div class="finding-meta">${f.impact ? `<span class="finding-tag">Impact: ${f.impact}</span>` : ''}${f.effort ? `<span class="finding-tag">Effort: ${f.effort}</span>` : ''}</div>` : ''}
+          </div>
+        </details>
+      `).join('');
+    }
+
+    renderList('all');
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderList((tab as HTMLElement).dataset.severity || 'all');
+      });
+    });
+  }
+</script>
