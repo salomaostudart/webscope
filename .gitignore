@@ -1,0 +1,31 @@
+# build
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# env
+.env
+.env.local
+.env.production
+
+# test results
+test-results/
+playwright-report/
+
+# credentials
+**/service-account*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# worker
+worker/node_modules/
+worker/dist/
+worker/.wrangler/
