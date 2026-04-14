@@ -17,7 +17,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
   .history-page {
-    max-width: 900px;
+    width: 100%;
   }
 
   .history-header {
@@ -167,13 +167,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    margin-top: var(--space-4);
-    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-5);
     background: var(--surface-2);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
     color: var(--text-secondary);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .compare-bar .compare-hint {
@@ -200,15 +202,51 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   td.td-check {
-    width: 36px;
+    width: 44px;
     text-align: center;
   }
   td.td-check input[type="checkbox"],
   th.th-check input[type="checkbox"] {
-    accent-color: var(--accent-primary);
-    width: 16px;
-    height: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-default);
+    border-radius: 4px;
+    background: var(--surface-2);
     cursor: pointer;
+    vertical-align: middle;
+    position: relative;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    flex-shrink: 0;
+  }
+  td.td-check input[type="checkbox"]:hover,
+  th.th-check input[type="checkbox"]:hover {
+    border-color: var(--accent-primary);
+  }
+  td.td-check input[type="checkbox"]:checked,
+  th.th-check input[type="checkbox"]:checked {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+  }
+  td.td-check input[type="checkbox"]:checked::after,
+  th.th-check input[type="checkbox"]:checked::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 6px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+  td.td-check input[type="checkbox"]:focus-visible,
+  th.th-check input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
   }
 
   .comparison-card {
@@ -217,6 +255,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     background: var(--surface-2);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .comparison-card h2 {
