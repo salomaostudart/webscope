@@ -26,7 +26,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="report-header">
       <div class="report-url-row">
         <span class="report-url" id="report-url"></span>
-        <span class="report-date" id="report-date"></span>
+        <div class="report-actions">
+          <button class="export-btn" id="export-csv" type="button" title="Download CSV">CSV</button>
+          <button class="export-btn" id="export-md" type="button" title="Download Markdown">MD</button>
+          <span class="report-date" id="report-date"></span>
+        </div>
       </div>
     </div>
 
@@ -96,7 +100,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .report-header { margin-bottom: var(--space-6); }
   .report-url-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
   .report-url { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-primary); word-break: break-all; }
+  .report-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
   .report-date { font-size: var(--text-xs); color: var(--text-muted); }
+  .export-btn {
+    padding: var(--space-1) var(--space-3);
+    background: var(--surface-3); border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm); color: var(--text-muted);
+    font-size: var(--text-xs); font-weight: 600; cursor: pointer;
+    transition: all var(--transition-fast); min-height: 32px; min-width: 44px;
+  }
+  .export-btn:hover { color: var(--text-primary); border-color: var(--border-hover); background: var(--surface-4); }
 
   .overall-section {
     display: flex; align-items: center; gap: var(--space-6);
@@ -150,6 +163,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import { scanUrl } from '../lib/scanner';
   import type { AuditResult } from '../analyzers/base/analyzer.interface';
   import { scoreToGrade } from '../utils/scoring';
+  import { downloadCSV, downloadMarkdown } from '../utils/export';
 
   const loadingState = document.getElementById('loading-state')!;
   const errorState = document.getElementById('error-state')!;
@@ -178,6 +192,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       // Cache result for drill-down pages
       sessionStorage.setItem('webscope_result', JSON.stringify(result));
+
+      // Wire up export buttons
+      document.getElementById('export-csv')?.addEventListener('click', () => downloadCSV(result));
+      document.getElementById('export-md')?.addEventListener('click', () => downloadMarkdown(result));
 
       renderReport(result);
     } catch (err) {
