@@ -1,0 +1,383 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const exampleUrls = [
+  { label: 'growth.sal.dev.br', url: 'https://growth.sal.dev.br' },
+  { label: 'Portfolio', url: 'https://salomaostudart.github.io/portfolio' },
+  { label: 'Landing Barbearia', url: 'https://salomaostudart.github.io/landing-barbearia' },
+];
+
+const categories = [
+  { name: 'Performance', description: 'Core Web Vitals, page speed, resource optimization', icon: 'zap' },
+  { name: 'SEO', description: 'Meta tags, headings, structured data, crawlability', icon: 'search' },
+  { name: 'Accessibility', description: 'WCAG 2.1 AA, contrast, ARIA, keyboard navigation', icon: 'eye' },
+  { name: 'Content', description: 'Readability, broken links, CTAs, images', icon: 'file-text' },
+  { name: 'Branding', description: 'Colors, fonts, logo, favicon, consistency', icon: 'palette' },
+  { name: 'Security', description: 'HTTPS, headers, CSP, mixed content', icon: 'shield' },
+];
+---
+
+<BaseLayout title="Scanner">
+  <div class="hero">
+    <h1 class="hero-title">WebScope</h1>
+    <p class="hero-subtitle">Analyze any website in seconds</p>
+
+    <form class="scanner-form" id="scanner-form">
+      <div class="input-wrapper">
+        <input
+          type="url"
+          id="url-input"
+          name="url"
+          class="url-input"
+          placeholder="https://example.com"
+          required
+          autocomplete="url"
+          spellcheck="false"
+          aria-label="Website URL to analyze"
+        />
+        <button type="submit" class="analyze-btn" id="analyze-btn">
+          <span class="btn-text">Analyze</span>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-error" id="input-error" role="alert" aria-live="polite"></p>
+    </form>
+
+    <div class="examples">
+      <span class="examples-label">Try with:</span>
+      {exampleUrls.map((ex) => (
+        <button class="example-btn" data-url={ex.url} type="button">
+          {ex.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section class="how-it-works" aria-labelledby="how-heading">
+    <h2 id="how-heading">How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Enter URL</h3>
+        <p>Paste any public website URL</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>We Analyze</h3>
+        <p>6 categories, 100+ checks, powered by Lighthouse</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Get Report</h3>
+        <p>Scores, findings, and AI-powered suggestions</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories" aria-labelledby="categories-heading">
+    <h2 id="categories-heading">What we check</h2>
+    <div class="category-grid">
+      {categories.map((cat) => (
+        <div class="category-card">
+          <h3>{cat.name}</h3>
+          <p>{cat.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-16) 0 var(--space-8);
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin-bottom: var(--space-2);
+    letter-spacing: 0.04em;
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-xl);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+  }
+
+  .scanner-form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .input-wrapper {
+    display: flex;
+    gap: 0;
+    border: 2px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+    background: var(--surface-2);
+  }
+  .input-wrapper:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .url-input {
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    outline: none;
+    min-height: 48px;
+  }
+  .url-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .analyze-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border: none;
+    font-family: var(--font-heading);
+    font-size: var(--text-base);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    min-height: 48px;
+    min-width: unset;
+  }
+  .analyze-btn:hover {
+    background: var(--accent-primary-active);
+  }
+  .analyze-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .btn-icon { width: 18px; height: 18px; }
+
+  .input-error {
+    min-height: 1.5em;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--accent-danger);
+    text-align: left;
+    padding-left: var(--space-4);
+  }
+
+  .examples {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .examples-label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .example-btn {
+    padding: var(--space-1) var(--space-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 32px;
+    min-width: unset;
+  }
+  .example-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(129, 140, 248, 0.08);
+  }
+
+  .divider {
+    width: 48px;
+    height: 2px;
+    background: var(--accent-primary);
+    margin: var(--space-8) auto;
+    border-radius: 1px;
+  }
+
+  .how-it-works {
+    text-align: center;
+    margin-bottom: var(--space-12);
+  }
+  .how-it-works h2 {
+    margin-bottom: var(--space-6);
+    color: var(--text-primary);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .step {
+    text-align: center;
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: rgba(129, 140, 248, 0.1);
+    color: var(--accent-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+
+  .step h3 {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .step p {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .categories {
+    text-align: center;
+    margin-bottom: var(--space-12);
+  }
+  .categories h2 {
+    margin-bottom: var(--space-6);
+    color: var(--text-primary);
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .category-card {
+    padding: var(--space-4);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    text-align: left;
+    transition: all var(--transition-fast);
+  }
+  .category-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+  }
+  .category-card h3 {
+    font-size: var(--text-sm);
+    color: var(--accent-primary);
+    margin-bottom: var(--space-1);
+  }
+  .category-card p {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .steps { grid-template-columns: 1fr; gap: var(--space-4); }
+    .category-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .category-grid { grid-template-columns: 1fr; }
+    .input-wrapper { flex-direction: column; }
+    .analyze-btn { justify-content: center; }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('scanner-form') as HTMLFormElement;
+  const urlInput = document.getElementById('url-input') as HTMLInputElement;
+  const errorEl = document.getElementById('input-error') as HTMLParagraphElement;
+  const exampleBtns = document.querySelectorAll('.example-btn');
+
+  // URL validation
+  function isValidUrl(str: string): boolean {
+    try {
+      const url = new URL(str);
+      return ['http:', 'https:'].includes(url.protocol);
+    } catch {
+      return false;
+    }
+  }
+
+  function normalizeUrl(str: string): string {
+    const trimmed = str.trim();
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      return 'https://' + trimmed;
+    }
+    return trimmed;
+  }
+
+  // Form submit
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = urlInput.value;
+    const url = normalizeUrl(raw);
+
+    if (!isValidUrl(url)) {
+      errorEl.textContent = 'Please enter a valid URL (e.g., https://example.com)';
+      urlInput.focus();
+      return;
+    }
+
+    errorEl.textContent = '';
+    // TODO: redirect to report page after analysis
+    // For now, store in sessionStorage and show a message
+    sessionStorage.setItem('webscope_url', url);
+    errorEl.style.color = 'var(--accent-success)';
+    errorEl.textContent = `Analysis of ${url} coming soon — analyzers not yet implemented.`;
+  });
+
+  // Example buttons
+  exampleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = (btn as HTMLButtonElement).dataset.url || '';
+      urlInput.value = url;
+      urlInput.focus();
+    });
+  });
+
+  // Clear error on input
+  urlInput?.addEventListener('input', () => {
+    errorEl.textContent = '';
+    errorEl.style.color = '';
+  });
+</script>
