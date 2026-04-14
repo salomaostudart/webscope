@@ -74,6 +74,16 @@ export async function compareAudits(id1: string, id2: string): Promise<AuditComp
   }
 }
 
+export async function clearAllAudits(): Promise<boolean> {
+  try {
+    const response = await fetch(`${WORKER_URL}/audits`, { method: 'DELETE' });
+    return response.ok;
+  } catch {
+    if (import.meta.env?.DEV) console.error('Clear audits failed');
+    return false;
+  }
+}
+
 export async function listAudits(domain?: string, limit = 20): Promise<AuditSummary[]> {
   try {
     const params = new URLSearchParams();

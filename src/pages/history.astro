@@ -6,8 +6,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="history-page">
     <header class="history-header">
       <h1>Audit History</h1>
-      <a href="/" class="new-audit-link">Run new audit</a>
+      <div class="history-actions">
+        <button type="button" class="clear-btn" id="clear-btn" title="Clear all audit history">Clear all</button>
+        <a href="/" class="new-audit-link">Run new audit</a>
+      </div>
     </header>
+
+    <p class="history-note">
+      Note: this history is <strong>shared across all users</strong> with access to WebScope.
+      All visitors see the same audits.
+    </p>
 
     <div id="history-content">
       <p class="loading-msg">Loading audits...</p>
@@ -31,6 +39,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .history-header h1 {
     color: var(--accent-primary);
     margin: 0;
+  }
+
+  .history-actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .history-note {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-2);
+    border-left: 3px solid var(--accent-warning);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-4);
+  }
+  .history-note strong { color: var(--text-secondary); }
+
+  .clear-btn {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+  .clear-btn:hover {
+    color: var(--accent-danger);
+    border-color: var(--accent-danger);
+    background: rgba(239, 68, 68, 0.08);
   }
 
   .new-audit-link {
@@ -229,7 +273,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     transition: transform var(--transition-fast);
   }
   .compare-btn:disabled {
-    background: transparent;
+    background: var(--surface-3);
     border-color: var(--border-default);
     color: var(--text-muted);
     cursor: not-allowed;
@@ -476,7 +520,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </style>
 
 <script>
-  import { listAudits, compareAudits } from '../lib/db';
+  import { listAudits, compareAudits, clearAllAudits } from '../lib/db';
   import type { AuditSummary, AuditComparison } from '../lib/db';
   import { escapeHtml } from '../utils/sanitize';
 
@@ -690,16 +734,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
   }
 
-  try {
-    const audits = await listAudits();
-    if (audits.length === 0) {
-      container.innerHTML = renderEmpty();
-    } else {
-      container.innerHTML = renderTable(audits);
-      bindCompareEvents();
+  async function loadAudits(): Promise<void> {
+    try {
+      const audits = await listAudits();
+      if (audits.length === 0) {
+        container.innerHTML = renderEmpty();
+      } else {
+        container.innerHTML = renderTable(audits);
+        bindCompareEvents();
+      }
+    } catch (err) {
+      if (import.meta.env?.DEV) console.error('Failed to load audits:', err);
+      container.innerHTML = '<p class="error-msg">Failed to load audit history.</p>';
     }
-  } catch (err) {
-    if (import.meta.env?.DEV) console.error('Failed to load audits:', err);
-    container.innerHTML = '<p class="error-msg">Failed to load audit history.</p>';
   }
+
+  // Clear all audits handler
+  document.getElementById('clear-btn')?.addEventListener('click', async () => {
+    if (!confirm('Clear all audit history? This will remove every saved audit for all users. This cannot be undone.')) return;
+    const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+    if (clearBtn) {
+      clearBtn.disabled = true;
+      clearBtn.textContent = 'Clearing...';
+    }
+    const ok = await clearAllAudits();
+    if (ok) {
+      selected.clear();
+      await loadAudits();
+    } else {
+      alert('Failed to clear history. Try again.');
+    }
+    if (clearBtn) {
+      clearBtn.disabled = false;
+      clearBtn.textContent = 'Clear all';
+    }
+  });
+
+  await loadAudits();
 </script>

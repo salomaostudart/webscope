@@ -98,7 +98,7 @@ function corsHeaders(origin: string, allowedOrigin: string): Record<string, stri
 
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
   };
@@ -152,6 +152,11 @@ export default {
       const domain = url.searchParams.get('domain') || undefined;
       const limit = parseInt(url.searchParams.get('limit') || '20', 10);
       return handleListAudits(domain, limit, env, cors);
+    }
+
+    // Route: DELETE /audits — clear all audits
+    if (url.pathname === '/audits' && request.method === 'DELETE') {
+      return handleClearAudits(env, cors);
     }
 
     // Route: GET /screenshot/:id — serve screenshot from KV
@@ -432,6 +437,23 @@ async function handleGetAudit(
     });
   } catch {
     return jsonError('Failed to fetch audit', 500, cors);
+  }
+}
+
+async function handleClearAudits(
+  env: Env, cors: Record<string, string>,
+): Promise<Response> {
+  try {
+    await env.DB.batch([
+      env.DB.prepare('DELETE FROM ws_findings'),
+      env.DB.prepare('DELETE FROM ws_audits'),
+    ]);
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch {
+    return jsonError('Failed to clear audits', 500, cors);
   }
 }
 
