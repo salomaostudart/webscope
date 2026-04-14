@@ -1,5 +1,4 @@
 ---
-// Sidebar — main navigation
 interface Props {
   currentPath: string;
 }
@@ -9,25 +8,22 @@ const { currentPath } = Astro.props;
 interface NavItem {
   label: string;
   href: string;
-  icon: string;
-  section?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Scanner', href: '/', icon: 'search', section: 'main' },
-  { label: 'History', href: '/history', icon: 'clock', section: 'main' },
-  { label: 'About', href: '/about', icon: 'info', section: 'main' },
+  { label: 'Scanner', href: '/' },
+  { label: 'History', href: '/history' },
+  { label: 'About', href: '/about' },
 ];
 
-// Report sub-nav items (shown only on report pages)
 const reportItems: NavItem[] = [
-  { label: 'Overview', href: '/report', icon: 'layout', section: 'report' },
-  { label: 'Performance', href: '/report/performance', icon: 'zap', section: 'report' },
-  { label: 'SEO', href: '/report/seo', icon: 'search', section: 'report' },
-  { label: 'Accessibility', href: '/report/accessibility', icon: 'eye', section: 'report' },
-  { label: 'Content', href: '/report/content', icon: 'file-text', section: 'report' },
-  { label: 'Branding', href: '/report/branding', icon: 'palette', section: 'report' },
-  { label: 'Security', href: '/report/security', icon: 'shield', section: 'report' },
+  { label: 'Overview', href: '/report' },
+  { label: 'Performance', href: '/report/performance' },
+  { label: 'SEO', href: '/report/seo' },
+  { label: 'Accessibility', href: '/report/accessibility' },
+  { label: 'Content', href: '/report/content' },
+  { label: 'Branding', href: '/report/branding' },
+  { label: 'Security', href: '/report/security' },
 ];
 
 const isReportPage = currentPath.startsWith('/report');
@@ -70,7 +66,7 @@ const isReportPage = currentPath.startsWith('/report');
             <li>
               <a
                 href={item.href}
-                class:list={['nav-link', { active: currentPath.endsWith(item.href.replace('/report', '')) }]}
+                class:list={['nav-link', { active: currentPath === item.href || (item.href === '/report' && currentPath === '/report/') }]}
               >
                 <span class="nav-link-text">{item.label}</span>
               </a>
@@ -88,8 +84,7 @@ const isReportPage = currentPath.startsWith('/report');
   </div>
 </aside>
 
-<!-- Mobile overlay -->
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
 <style>
   .sidebar {
@@ -97,18 +92,21 @@ const isReportPage = currentPath.startsWith('/report');
     top: 0;
     left: 0;
     width: var(--sidebar-width);
-    height: 100vh;
+    height: 100dvh;
     background: var(--surface-1);
     border-right: 1px solid var(--border-default);
     display: flex;
     flex-direction: column;
     z-index: 100;
     transition: transform var(--transition-base);
+    /* Safe area for notch on landscape iPhone */
+    padding-left: env(safe-area-inset-left, 0px);
   }
 
   .sidebar-header {
     padding: var(--space-4) var(--space-5);
     border-bottom: 1px solid var(--border-default);
+    flex-shrink: 0;
   }
 
   .logo {
@@ -117,8 +115,6 @@ const isReportPage = currentPath.startsWith('/report');
     gap: var(--space-3);
     color: var(--text-primary);
     text-decoration: none;
-    min-height: unset;
-    min-width: unset;
   }
   .logo:hover { color: var(--accent-primary); }
 
@@ -141,6 +137,7 @@ const isReportPage = currentPath.startsWith('/report');
     flex: 1;
     overflow-y: auto;
     padding: var(--space-4) 0;
+    -webkit-overflow-scrolling: touch;
   }
 
   .nav-list {
@@ -152,15 +149,14 @@ const isReportPage = currentPath.startsWith('/report');
   .nav-link {
     display: flex;
     align-items: center;
-    padding: var(--space-2) var(--space-5);
+    padding: var(--space-3) var(--space-5);
     color: var(--text-secondary);
     text-decoration: none;
     font-size: var(--text-sm);
     font-weight: 500;
     transition: all var(--transition-fast);
     border-left: 3px solid transparent;
-    min-height: 40px;
-    min-width: unset;
+    min-height: 44px;
   }
   .nav-link:hover {
     color: var(--text-primary);
@@ -190,26 +186,36 @@ const isReportPage = currentPath.startsWith('/report');
   .sidebar-footer {
     padding: var(--space-3) 0;
     border-top: 1px solid var(--border-default);
+    flex-shrink: 0;
+    /* Safe area for bottom gesture bar */
+    padding-bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 99;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Mobile */
-  @media (max-width: 768px) {
+  /* Tablet + Mobile: sidebar as overlay */
+  @media (max-width: 1024px) {
     .sidebar {
       transform: translateX(-100%);
+      box-shadow: var(--shadow-lg);
     }
-    .sidebar.open {
+    .sidebar:global(.open) {
       transform: translateX(0);
     }
-    .sidebar-overlay.open {
+    .sidebar-overlay:global(.open) {
       display: block;
     }
+  }
+
+  /* Prevent body scroll when sidebar is open on mobile */
+  :global(body.sidebar-open) {
+    overflow: hidden;
   }
 </style>

@@ -16,18 +16,27 @@ const currentPath = Astro.url.pathname;
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{title} — WebScope</title>
   <meta name="description" content={description}>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="sitemap" href="/sitemap-index.xml">
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
 
   <!-- Theme initialization (prevent flash) -->
   <script is:inline>
     (function() {
       var theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
+      // Update theme-color meta for light mode
+      if (theme === 'light') {
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', '#f1f5f9');
+      }
     })();
   </script>
 </head>
@@ -63,7 +72,7 @@ const currentPath = Astro.url.pathname;
 <style>
   .main-wrapper {
     margin-left: var(--sidebar-width);
-    min-height: 100vh;
+    min-height: 100dvh; /* dynamic viewport height — fixes iOS Safari */
     display: flex;
     flex-direction: column;
   }
@@ -79,8 +88,10 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     height: var(--topbar-height);
     padding: 0 var(--space-6);
+    padding-right: max(var(--space-6), env(safe-area-inset-right, 0px));
     background: var(--surface-1);
     border-bottom: 1px solid var(--border-default);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
 
@@ -90,10 +101,10 @@ const currentPath = Astro.url.pathname;
     display: none;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    min-height: 36px;
-    min-width: 36px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    min-width: 44px;
     background: transparent;
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
@@ -109,27 +120,24 @@ const currentPath = Astro.url.pathname;
 
   .page-content {
     flex: 1;
-    padding: var(--space-8) var(--space-6);
+    padding: clamp(var(--space-4), 3vw, var(--space-8)) clamp(var(--space-4), 3vw, var(--space-6));
     max-width: 1200px;
     width: 100%;
   }
 
-  /* Mobile */
-  @media (max-width: 768px) {
+  /* Tablet: sidebar collapses, hamburger appears */
+  @media (max-width: 1024px) {
     .main-wrapper {
       margin-left: 0;
     }
     .menu-toggle {
       display: flex;
     }
-    .page-content {
-      padding: var(--space-4) var(--space-4);
-    }
   }
 </style>
 
 <script>
-  // Mobile sidebar toggle
+  // Mobile/tablet sidebar toggle
   const menuToggle = document.getElementById('menu-toggle');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebar-overlay');
@@ -137,8 +145,25 @@ const currentPath = Astro.url.pathname;
   function toggleSidebar() {
     sidebar?.classList.toggle('open');
     overlay?.classList.toggle('open');
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('open');
+    document.body.classList.remove('sidebar-open');
   }
 
   menuToggle?.addEventListener('click', toggleSidebar);
-  overlay?.addEventListener('click', toggleSidebar);
+  overlay?.addEventListener('click', closeSidebar);
+
+  // Close sidebar on navigation (for SPA-like behavior)
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+
+  // Close sidebar on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSidebar();
+  });
 </script>

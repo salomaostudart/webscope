@@ -95,11 +95,11 @@ const categories = [
 <style>
   .hero {
     text-align: center;
-    padding: var(--space-16) 0 var(--space-8);
+    padding: clamp(var(--space-8), 6vw, var(--space-16)) 0 var(--space-8);
   }
 
   .hero-title {
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 1.2rem + 4vw, 3.5rem);
     font-weight: 600;
     color: var(--accent-primary);
     margin-bottom: var(--space-2);
@@ -197,7 +197,7 @@ const categories = [
   }
 
   .example-btn {
-    padding: var(--space-1) var(--space-3);
+    padding: var(--space-2) var(--space-3);
     background: var(--surface-2);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-full);
@@ -205,8 +205,8 @@ const categories = [
     font-size: var(--text-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
-    min-height: 32px;
-    min-width: unset;
+    min-height: 44px;
+    min-width: 44px;
   }
   .example-btn:hover {
     border-color: var(--accent-primary);
@@ -309,16 +309,18 @@ const categories = [
     line-height: var(--leading-relaxed);
   }
 
+  /* Tablet */
   @media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; }
     .steps { grid-template-columns: 1fr; gap: var(--space-4); }
     .category-grid { grid-template-columns: 1fr 1fr; }
   }
 
+  /* Mobile */
   @media (max-width: 480px) {
     .category-grid { grid-template-columns: 1fr; }
     .input-wrapper { flex-direction: column; }
-    .analyze-btn { justify-content: center; }
+    .analyze-btn { justify-content: center; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    .url-input { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
   }
 </style>
 
