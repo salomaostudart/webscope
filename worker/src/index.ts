@@ -8,6 +8,8 @@
 interface Env {
   ALLOWED_ORIGIN: string;
   AI: Ai;
+  FEEDBACK_SCREENSHOTS: KVNamespace;
+  GITHUB_TOKEN: string;
 }
 
 // --- SSRF protection ---
@@ -105,6 +107,16 @@ export default {
     // Route: POST /ai — AI suggestions
     if (url.pathname === '/ai' && request.method === 'POST') {
       return handleAI(request, env, cors);
+    }
+
+    // Route: POST /feedback — bug/feedback reporting
+    if (url.pathname === '/feedback' && request.method === 'POST') {
+      return handleFeedback(request, env, cors);
+    }
+
+    // Route: GET /screenshot/:id — serve screenshot from KV
+    if (url.pathname.startsWith('/screenshot/') && request.method === 'GET') {
+      return handleScreenshot(url.pathname, env, cors);
     }
 
     if (request.method !== 'GET') {
@@ -279,6 +291,165 @@ Respond ONLY with valid JSON in this exact format, no markdown:
     const message = err instanceof Error ? err.message : 'AI request failed';
     return jsonError(`AI error: ${message}`, 502, cors);
   }
+}
+
+// --- Feedback handler ---
+
+interface FeedbackPayload {
+  type: 'bug' | 'improvement' | 'question';
+  description: string;
+  screenshot?: string; // base64 data URL
+  context: {
+    url: string;
+    viewport: string;
+    userAgent: string;
+    timestamp: string;
+    theme: string;
+    auditScore?: number;
+    auditGrade?: string;
+    consoleErrors?: string[];
+    networkErrors?: string[];
+  };
+}
+
+const feedbackRateCounts = new Map<string, { count: number; resetAt: number }>();
+
+async function handleFeedback(
+  request: Request,
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+
+  // Rate limit: 10/hour
+  const now = Date.now();
+  const entry = feedbackRateCounts.get(clientIp);
+  if (entry && now < entry.resetAt && entry.count >= 10) {
+    return jsonError('Feedback rate limit exceeded.', 429, cors);
+  }
+  if (!entry || now > (entry?.resetAt ?? 0)) {
+    feedbackRateCounts.set(clientIp, { count: 1, resetAt: now + 60 * 60 * 1000 });
+  } else {
+    entry.count++;
+  }
+
+  try {
+    const body = await request.json() as FeedbackPayload;
+
+    if (!body.description || body.description.length < 10) {
+      return jsonError('Description must be at least 10 characters.', 400, cors);
+    }
+
+    // Store screenshot in KV if present
+    let screenshotUrl = '';
+    if (body.screenshot && body.screenshot.startsWith('data:image/')) {
+      const id = crypto.randomUUID();
+      await env.FEEDBACK_SCREENSHOTS.put(`screenshot:${id}`, body.screenshot, {
+        expirationTtl: 60 * 60 * 24 * 30, // 30 days
+      });
+      screenshotUrl = `https://webscope-api.salomaomstudart.workers.dev/screenshot/${id}`;
+    }
+
+    // Build GitHub Issue
+    const labels = {
+      bug: 'bug',
+      improvement: 'enhancement',
+      question: 'question',
+    };
+
+    const title = `[${body.type.charAt(0).toUpperCase() + body.type.slice(1)}] ${body.description.substring(0, 60)}`;
+
+    let issueBody = `## Description\n\n${body.description}\n\n`;
+    issueBody += `## Context\n\n`;
+    issueBody += `| Field | Value |\n|---|---|\n`;
+    issueBody += `| URL | ${body.context.url} |\n`;
+    issueBody += `| Viewport | ${body.context.viewport} |\n`;
+    issueBody += `| Theme | ${body.context.theme} |\n`;
+    issueBody += `| Timestamp | ${body.context.timestamp} |\n`;
+    issueBody += `| User Agent | ${body.context.userAgent.substring(0, 100)} |\n`;
+
+    if (body.context.auditScore !== undefined) {
+      issueBody += `| Audit Score | ${body.context.auditScore}/100 (${body.context.auditGrade}) |\n`;
+    }
+
+    if (body.context.consoleErrors && body.context.consoleErrors.length > 0) {
+      issueBody += `\n## Console Errors\n\n\`\`\`\n${body.context.consoleErrors.join('\n')}\n\`\`\`\n`;
+    }
+
+    if (body.context.networkErrors && body.context.networkErrors.length > 0) {
+      issueBody += `\n## Network Errors\n\n\`\`\`\n${body.context.networkErrors.join('\n')}\n\`\`\`\n`;
+    }
+
+    if (screenshotUrl) {
+      issueBody += `\n## Screenshot\n\n[View screenshot](${screenshotUrl})\n`;
+    }
+
+    issueBody += `\n---\n*Submitted via WebScope feedback button*`;
+
+    // Create GitHub Issue
+    const ghResponse = await fetch('https://api.github.com/repos/salomaostudart/webscope/issues', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'WebScope-Feedback/1.0',
+        'Accept': 'application/vnd.github+json',
+      },
+      body: JSON.stringify({
+        title,
+        body: issueBody,
+        labels: [labels[body.type] || 'bug'],
+      }),
+    });
+
+    if (!ghResponse.ok) {
+      const errText = await ghResponse.text();
+      return jsonError(`GitHub API error: ${ghResponse.status}`, 502, cors);
+    }
+
+    const issue = await ghResponse.json() as { number: number; html_url: string };
+
+    return new Response(JSON.stringify({
+      success: true,
+      issueNumber: issue.number,
+      issueUrl: issue.html_url,
+    }), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  } catch {
+    return jsonError('Failed to process feedback.', 500, cors);
+  }
+}
+
+// --- Screenshot handler ---
+
+async function handleScreenshot(
+  pathname: string,
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  const id = pathname.replace('/screenshot/', '');
+  const data = await env.FEEDBACK_SCREENSHOTS.get(`screenshot:${id}`);
+
+  if (!data) {
+    return jsonError('Screenshot not found or expired.', 404, cors);
+  }
+
+  // Convert data URL to binary
+  const base64 = data.split(',')[1];
+  const mimeMatch = data.match(/data:([^;]+)/);
+  const mime = mimeMatch?.[1] || 'image/png';
+  const binary = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+  return new Response(binary, {
+    status: 200,
+    headers: {
+      'Content-Type': mime,
+      'Cache-Control': 'public, max-age=86400',
+      ...cors,
+    },
+  });
 }
 
 function jsonError(

@@ -7,3 +7,7 @@ ALLOWED_ORIGIN = "https://webscope.sal.dev.br"
 
 [ai]
 binding = "AI"
+
+[[kv_namespaces]]
+binding = "FEEDBACK_SCREENSHOTS"
+id = "48586b61e46f4b7e841211601a619245"

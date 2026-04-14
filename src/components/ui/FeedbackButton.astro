@@ -1,0 +1,421 @@
+---
+// FeedbackButton — floating button + modal for bug/feedback reporting
+// Auto-captures: console errors, failed network requests, page context
+// Sends to GitHub Issues via Worker API
+---
+
+<!-- Floating button -->
+<button class="feedback-fab" id="feedback-fab" type="button" aria-label="Report feedback" title="Report a bug or suggest an improvement (Ctrl+Shift+F)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <circle cx="12" cy="15" r="0.5" fill="currentColor"/>
+  </svg>
+</button>
+
+<!-- Modal overlay -->
+<div class="feedback-overlay" id="feedback-overlay" aria-hidden="true">
+  <div class="feedback-modal" role="dialog" aria-label="Report feedback">
+    <div class="fm-header">
+      <h3>Report Feedback</h3>
+      <button class="fm-close" id="feedback-close" type="button" aria-label="Close">&times;</button>
+    </div>
+
+    <form class="fm-form" id="feedback-form">
+      <div class="fm-field">
+        <label for="fb-type">Type</label>
+        <select id="fb-type" required>
+          <option value="bug">Bug</option>
+          <option value="improvement">Improvement</option>
+          <option value="question">Question</option>
+        </select>
+      </div>
+
+      <div class="fm-field">
+        <label for="fb-description">Description</label>
+        <textarea id="fb-description" rows="4" required minlength="10"
+          placeholder="Describe what happened, what you expected, or what could be better..."></textarea>
+      </div>
+
+      <div class="fm-field">
+        <label>Screenshot <span class="fm-hint">(paste with Ctrl+V or click Capture)</span></label>
+        <div class="fm-screenshot-area" id="fb-screenshot-area">
+          <div class="fm-screenshot-placeholder" id="fb-screenshot-placeholder">
+            <button type="button" class="fm-capture-btn" id="fb-capture-btn">Capture Page</button>
+            <span class="fm-or">or paste screenshot (Ctrl+V)</span>
+          </div>
+          <div class="fm-screenshot-preview" id="fb-screenshot-preview" style="display:none">
+            <img id="fb-screenshot-img" alt="Screenshot preview">
+            <button type="button" class="fm-remove-btn" id="fb-remove-screenshot">&times; Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <details class="fm-context">
+        <summary>Technical details (auto-captured)</summary>
+        <pre id="fb-context-preview"></pre>
+      </details>
+
+      <div class="fm-actions">
+        <button type="submit" class="fm-submit" id="fb-submit">
+          <span id="fb-submit-text">Send Report</span>
+        </button>
+        <span class="fm-note">Creates a GitHub Issue automatically</span>
+      </div>
+
+      <p class="fm-status" id="fb-status" role="alert"></p>
+    </form>
+  </div>
+</div>
+
+<style>
+  .feedback-fab {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    right: max(20px, env(safe-area-inset-right, 0px));
+    width: 48px; height: 48px;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border: none; border-radius: var(--radius-full);
+    cursor: pointer; z-index: 90;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-fast);
+  }
+  .feedback-fab:hover { background: var(--accent-primary-active); transform: scale(1.1); }
+  .feedback-fab svg { width: 22px; height: 22px; }
+
+  .feedback-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: var(--space-4);
+  }
+  .feedback-overlay.open { display: flex; }
+
+  .feedback-modal {
+    background: var(--surface-1); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); width: 100%; max-width: 520px;
+    max-height: 90dvh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fm-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+  }
+  .fm-header h3 { font-size: var(--text-base); color: var(--text-primary); margin: 0; }
+  .fm-close {
+    background: none; border: none; color: var(--text-muted);
+    font-size: 24px; cursor: pointer; padding: 4px; line-height: 1;
+    min-height: 44px; min-width: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fm-close:hover { color: var(--text-primary); }
+
+  .fm-form { padding: var(--space-4) var(--space-5); }
+
+  .fm-field { margin-bottom: var(--space-4); }
+  .fm-field label {
+    display: block; font-size: var(--text-sm); font-weight: 500;
+    color: var(--text-primary); margin-bottom: var(--space-1);
+  }
+  .fm-hint { font-weight: 400; color: var(--text-muted); font-size: var(--text-xs); }
+
+  .fm-field select, .fm-field textarea {
+    width: 100%; padding: var(--space-2) var(--space-3);
+    background: var(--surface-2); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); color: var(--text-primary);
+    font-family: var(--font-body); font-size: var(--text-sm);
+    min-height: 44px;
+  }
+  .fm-field select:focus, .fm-field textarea:focus {
+    border-color: var(--accent-primary); outline: none;
+  }
+  .fm-field textarea { resize: vertical; min-height: 80px; }
+
+  .fm-screenshot-area {
+    border: 2px dashed var(--border-default); border-radius: var(--radius-md);
+    padding: var(--space-3); text-align: center;
+    transition: border-color var(--transition-fast);
+  }
+  .fm-screenshot-area.has-image { border-style: solid; border-color: var(--accent-success); }
+
+  .fm-screenshot-placeholder { display: flex; flex-direction: column; gap: var(--space-2); align-items: center; }
+  .fm-or { font-size: var(--text-xs); color: var(--text-muted); }
+
+  .fm-capture-btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface-3); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); color: var(--text-primary);
+    font-size: var(--text-sm); cursor: pointer; min-height: 44px;
+    transition: all var(--transition-fast);
+  }
+  .fm-capture-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+  .fm-screenshot-preview { position: relative; }
+  .fm-screenshot-preview img { width: 100%; border-radius: var(--radius-sm); max-height: 200px; object-fit: contain; }
+  .fm-remove-btn {
+    position: absolute; top: 4px; right: 4px;
+    background: var(--accent-danger); color: white; border: none;
+    border-radius: var(--radius-full); width: 28px; height: 28px;
+    cursor: pointer; font-size: 14px; min-height: 28px; min-width: 28px;
+  }
+
+  .fm-context { margin-bottom: var(--space-4); }
+  .fm-context summary {
+    font-size: var(--text-xs); color: var(--text-muted); cursor: pointer; min-height: 44px;
+    display: flex; align-items: center;
+  }
+  .fm-context pre {
+    font-size: var(--text-xs); color: var(--text-secondary);
+    background: var(--surface-2); padding: var(--space-2); border-radius: var(--radius-sm);
+    overflow-x: auto; max-height: 120px; margin-top: var(--space-2);
+    white-space: pre-wrap; word-break: break-all;
+  }
+
+  .fm-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+  .fm-submit {
+    padding: var(--space-2) var(--space-5);
+    background: var(--accent-primary); color: var(--text-inverse);
+    border: none; border-radius: var(--radius-md);
+    font-weight: 600; font-size: var(--text-sm); cursor: pointer;
+    min-height: 44px; transition: background var(--transition-fast);
+  }
+  .fm-submit:hover { background: var(--accent-primary-active); }
+  .fm-submit:disabled { opacity: 0.5; cursor: wait; }
+  .fm-note { font-size: var(--text-xs); color: var(--text-muted); }
+
+  .fm-status { margin-top: var(--space-3); font-size: var(--text-sm); min-height: 1.5em; }
+  .fm-status.success { color: var(--accent-success); }
+  .fm-status.error { color: var(--accent-danger); }
+</style>
+
+<script>
+  const WORKER_URL = 'https://webscope-api.salomaomstudart.workers.dev';
+
+  // --- Error capture ---
+  const capturedErrors: string[] = [];
+  const capturedNetworkErrors: string[] = [];
+
+  window.addEventListener('error', (e) => {
+    capturedErrors.push(`${e.message} (${e.filename}:${e.lineno})`);
+    if (capturedErrors.length > 10) capturedErrors.shift();
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    capturedErrors.push(`Unhandled promise: ${e.reason}`);
+    if (capturedErrors.length > 10) capturedErrors.shift();
+  });
+
+  // Intercept fetch errors
+  const originalFetch = window.fetch;
+  window.fetch = async (...args) => {
+    try {
+      const response = await originalFetch(...args);
+      if (!response.ok && response.status >= 400) {
+        const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url;
+        capturedNetworkErrors.push(`${response.status} ${url.substring(0, 100)}`);
+        if (capturedNetworkErrors.length > 10) capturedNetworkErrors.shift();
+      }
+      return response;
+    } catch (err) {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url;
+      capturedNetworkErrors.push(`FAILED ${url.substring(0, 100)}`);
+      throw err;
+    }
+  };
+
+  // --- Modal logic ---
+  const fab = document.getElementById('feedback-fab')!;
+  const overlay = document.getElementById('feedback-overlay')!;
+  const closeBtn = document.getElementById('feedback-close')!;
+  const form = document.getElementById('feedback-form') as HTMLFormElement;
+  const typeSelect = document.getElementById('fb-type') as HTMLSelectElement;
+  const descInput = document.getElementById('fb-description') as HTMLTextAreaElement;
+  const captureBtn = document.getElementById('fb-capture-btn')!;
+  const screenshotArea = document.getElementById('fb-screenshot-area')!;
+  const screenshotPlaceholder = document.getElementById('fb-screenshot-placeholder')!;
+  const screenshotPreview = document.getElementById('fb-screenshot-preview')!;
+  const screenshotImg = document.getElementById('fb-screenshot-img') as HTMLImageElement;
+  const removeBtn = document.getElementById('fb-remove-screenshot')!;
+  const contextPreview = document.getElementById('fb-context-preview')!;
+  const submitBtn = document.getElementById('fb-submit') as HTMLButtonElement;
+  const submitText = document.getElementById('fb-submit-text')!;
+  const statusEl = document.getElementById('fb-status')!;
+
+  let screenshotData: string | null = null;
+
+  function openModal() {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    updateContext();
+    descInput.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  fab.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+      e.preventDefault();
+      openModal();
+    }
+  });
+
+  // Context
+  function getContext() {
+    const auditRaw = sessionStorage.getItem('webscope_result');
+    let auditScore: number | undefined;
+    let auditGrade: string | undefined;
+    if (auditRaw) {
+      try {
+        const audit = JSON.parse(auditRaw);
+        auditScore = audit.overallScore;
+        auditGrade = audit.overallGrade;
+      } catch {}
+    }
+
+    return {
+      url: window.location.href,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      theme: document.documentElement.getAttribute('data-theme') || 'dark',
+      auditScore,
+      auditGrade,
+      consoleErrors: [...capturedErrors],
+      networkErrors: [...capturedNetworkErrors],
+    };
+  }
+
+  function updateContext() {
+    const ctx = getContext();
+    const lines = [
+      `URL: ${ctx.url}`,
+      `Viewport: ${ctx.viewport}`,
+      `Theme: ${ctx.theme}`,
+      `Time: ${ctx.timestamp}`,
+    ];
+    if (ctx.auditScore !== undefined) lines.push(`Audit: ${ctx.auditScore}/100 (${ctx.auditGrade})`);
+    if (ctx.consoleErrors.length) lines.push(`Console errors: ${ctx.consoleErrors.length}`);
+    if (ctx.networkErrors.length) lines.push(`Network errors: ${ctx.networkErrors.length}`);
+    contextPreview.textContent = lines.join('\n');
+  }
+
+  // Screenshot — clipboard paste
+  document.addEventListener('paste', (e) => {
+    if (!overlay.classList.contains('open')) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = () => setScreenshot(reader.result as string);
+          reader.readAsDataURL(blob);
+        }
+        e.preventDefault();
+        break;
+      }
+    }
+  });
+
+  // Screenshot — capture page
+  captureBtn.addEventListener('click', async () => {
+    captureBtn.textContent = 'Capturing...';
+    try {
+      // Use canvas to capture visible page
+      const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js' as any);
+      closeModal(); // hide modal before capture
+      await new Promise((r) => setTimeout(r, 200)); // wait for modal to close
+      const canvas = await html2canvas(document.body, { scale: 1, useCORS: true, logging: false });
+      const dataUrl = canvas.toDataURL('image/png');
+      setScreenshot(dataUrl);
+      openModal(); // reopen modal with screenshot
+    } catch {
+      // Fallback: use native screenshot API
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const track = stream.getVideoTracks()[0];
+        const imageCapture = new (window as any).ImageCapture(track);
+        const bitmap = await imageCapture.grabFrame();
+        track.stop();
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        canvas.getContext('2d')!.drawImage(bitmap, 0, 0);
+        setScreenshot(canvas.toDataURL('image/png'));
+      } catch {
+        // Both failed — user can paste manually
+      }
+    }
+    captureBtn.textContent = 'Capture Page';
+  });
+
+  function setScreenshot(dataUrl: string) {
+    screenshotData = dataUrl;
+    screenshotImg.src = dataUrl;
+    screenshotPlaceholder.style.display = 'none';
+    screenshotPreview.style.display = 'block';
+    screenshotArea.classList.add('has-image');
+  }
+
+  removeBtn.addEventListener('click', () => {
+    screenshotData = null;
+    screenshotImg.src = '';
+    screenshotPlaceholder.style.display = 'flex';
+    screenshotPreview.style.display = 'none';
+    screenshotArea.classList.remove('has-image');
+  });
+
+  // Submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitText.textContent = 'Sending...';
+    statusEl.textContent = '';
+    statusEl.className = 'fm-status';
+
+    try {
+      const response = await originalFetch(`${WORKER_URL}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: typeSelect.value,
+          description: descInput.value.trim(),
+          screenshot: screenshotData,
+          context: getContext(),
+        }),
+      });
+
+      const data = await response.json() as { success?: boolean; issueUrl?: string; issueNumber?: number; error?: string };
+
+      if (response.ok && data.success) {
+        statusEl.className = 'fm-status success';
+        statusEl.innerHTML = `Report sent! <a href="${data.issueUrl}" target="_blank" rel="noopener">View issue #${data.issueNumber}</a>`;
+        descInput.value = '';
+        removeBtn.click();
+        setTimeout(closeModal, 3000);
+      } else {
+        statusEl.className = 'fm-status error';
+        statusEl.textContent = data.error || 'Failed to send report.';
+      }
+    } catch {
+      statusEl.className = 'fm-status error';
+      statusEl.textContent = 'Connection error. Try again.';
+    }
+
+    submitBtn.disabled = false;
+    submitText.textContent = 'Send Report';
+  });
+</script>
