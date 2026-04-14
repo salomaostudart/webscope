@@ -1,0 +1,75 @@
+---
+import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
+---
+
+<DrillDownLayout analyzerName="security" displayName="Security">
+  <div id="security-data"></div>
+</DrillDownLayout>
+
+<style>
+  .sec-section { margin-bottom: var(--space-6); }
+  .sec-section h3 { font-size: var(--text-base); color: var(--text-primary); margin-bottom: var(--space-3); }
+  .headers-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .headers-table th { text-align: left; padding: var(--space-2) var(--space-3); background: var(--surface-3); color: var(--text-primary); font-weight: 600; font-size: var(--text-xs); text-transform: uppercase; }
+  .headers-table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-default); color: var(--text-secondary); }
+  .headers-table td:first-child { font-weight: 500; color: var(--text-primary); white-space: nowrap; }
+  .sec-status { font-weight: 600; }
+  .sec-present { color: var(--grade-a); }
+  .sec-missing { color: var(--grade-f); }
+  .sec-warn { color: var(--grade-c); }
+  .sec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px,100%), 1fr)); gap: var(--space-3); }
+  .sec-stat { padding: var(--space-3); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); font-size: var(--text-sm); }
+
+  @media (max-width: 600px) {
+    .headers-table { font-size: var(--text-xs); }
+    .headers-table th, .headers-table td { padding: var(--space-1) var(--space-2); }
+  }
+</style>
+
+<script>
+  window.addEventListener('analyzer-data-ready', () => {
+    const d = (window as any).__analyzerData;
+    if (!d) return;
+    const container = document.getElementById('security-data')!;
+
+    const ok = (v: boolean) => v ? '<span class="sec-status sec-present">Present</span>' : '<span class="sec-status sec-missing">Missing</span>';
+    let html = '';
+
+    // HTTPS
+    html += '<div class="sec-grid" style="margin-bottom:var(--space-4)">';
+    html += `<div class="sec-stat">${d.https ? '<span class="sec-present">&#10003;</span>' : '<span class="sec-missing">&#10007;</span>'} HTTPS</div>`;
+    html += `<div class="sec-stat">${d.mixedContent?.found ? '<span class="sec-missing">&#10007; Mixed content found</span>' : '<span class="sec-present">&#10003; No mixed content</span>'}</div>`;
+    html += `<div class="sec-stat">External scripts: ${d.sri?.externalScripts || 0} (${d.sri?.withIntegrity || 0} with SRI)</div>`;
+    html += `<div class="sec-stat">Forms: ${d.forms?.total || 0} ${d.forms?.insecureAction?.length ? '(<span class="sec-missing">' + d.forms.insecureAction.length + ' insecure</span>)' : ''}</div>`;
+    html += '</div>';
+
+    // Headers table
+    const h = d.headers;
+    if (h) {
+      html += '<div class="sec-section"><h3>Security Headers</h3>';
+      html += '<div style="overflow-x:auto"><table class="headers-table"><thead><tr><th>Header</th><th>Status</th><th>Value</th></tr></thead><tbody>';
+
+      html += `<tr><td>Strict-Transport-Security</td><td>${ok(h.hsts?.present)}</td><td>${h.hsts?.present ? `max-age=${h.hsts.maxAge}${h.hsts.includeSubDomains ? '; includeSubDomains' : ''}${h.hsts.preload ? '; preload' : ''}` : '—'}</td></tr>`;
+      html += `<tr><td>Content-Security-Policy</td><td>${ok(h.csp?.present)}${h.csp?.hasUnsafeInline ? ' <span class="sec-warn">(unsafe-inline)</span>' : ''}${h.csp?.hasUnsafeEval ? ' <span class="sec-warn">(unsafe-eval)</span>' : ''}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.csp?.value || '—'}</td></tr>`;
+      html += `<tr><td>X-Frame-Options</td><td>${ok(h.xFrameOptions?.present)}</td><td>${h.xFrameOptions?.value || '—'}</td></tr>`;
+      html += `<tr><td>X-Content-Type-Options</td><td>${ok(h.xContentTypeOptions?.present)}</td><td>${h.xContentTypeOptions?.present ? 'nosniff' : '—'}</td></tr>`;
+      html += `<tr><td>Referrer-Policy</td><td>${ok(h.referrerPolicy?.present)}</td><td>${h.referrerPolicy?.value || '—'}</td></tr>`;
+      html += `<tr><td>Permissions-Policy</td><td>${ok(h.permissionsPolicy?.present)}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.permissionsPolicy?.value || '—'}</td></tr>`;
+      html += `<tr><td>Server</td><td>${h.server?.present ? (h.server.leaksInfo ? '<span class="sec-status sec-warn">Leaks info</span>' : '<span class="sec-status sec-present">OK</span>') : '<span style="color:var(--text-muted)">Not set</span>'}</td><td>${h.server?.value || '—'}</td></tr>`;
+      html += `<tr><td>X-Powered-By</td><td>${h.xPoweredBy?.present ? '<span class="sec-status sec-missing">Exposed</span>' : '<span style="color:var(--text-muted)">Not set (good)</span>'}</td><td>${h.xPoweredBy?.value || '—'}</td></tr>`;
+
+      html += '</tbody></table></div></div>';
+    }
+
+    // Mixed content resources
+    if (d.mixedContent?.resources?.length > 0) {
+      html += '<div class="sec-section"><h3>Mixed Content Resources</h3><ul style="padding-left:var(--space-4)">';
+      d.mixedContent.resources.forEach((r: string) => {
+        html += `<li style="font-size:var(--text-sm);color:var(--grade-f);margin-bottom:var(--space-1);word-break:break-all">${r}</li>`;
+      });
+      html += '</ul></div>';
+    }
+
+    container.innerHTML = html;
+  });
+</script>

@@ -1,0 +1,91 @@
+---
+import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
+---
+
+<DrillDownLayout analyzerName="performance" displayName="Performance">
+  <div class="perf-data" id="perf-data"></div>
+</DrillDownLayout>
+
+<style>
+  .perf-data { margin-bottom: var(--space-6); }
+  .cwv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px,100%), 1fr)); gap: var(--space-3); margin-bottom: var(--space-6); }
+  .cwv-card { padding: var(--space-4); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+  .cwv-label { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-1); }
+  .cwv-value { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 600; }
+  .cwv-rating { font-size: var(--text-xs); margin-top: var(--space-1); }
+  .rating-good { color: var(--grade-a); }
+  .rating-needs-improvement { color: var(--grade-c); }
+  .rating-poor { color: var(--grade-f); }
+  .weight-section h3 { font-size: var(--text-base); color: var(--text-primary); margin-bottom: var(--space-3); }
+  .weight-bar { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-sm); }
+  .weight-label { min-width: 70px; color: var(--text-muted); }
+  .weight-track { flex: 1; height: 16px; background: var(--surface-3); border-radius: var(--radius-sm); overflow: hidden; }
+  .weight-fill { height: 100%; background: var(--accent-primary); border-radius: var(--radius-sm); transition: width 0.5s; }
+  .weight-size { min-width: 60px; text-align: right; color: var(--text-secondary); font-family: var(--font-mono); font-size: var(--text-xs); }
+</style>
+
+<script>
+  window.addEventListener('analyzer-data-ready', () => {
+    const data = (window as any).__analyzerData;
+    if (!data) return;
+    const container = document.getElementById('perf-data')!;
+
+    const s = data.scores;
+    const metrics = [
+      { label: 'LCP', value: s.lcp?.value, unit: 'ms', rating: s.lcp?.rating, desc: 'Largest Contentful Paint' },
+      { label: 'INP', value: s.inp?.value, unit: 'ms', rating: s.inp?.rating, desc: 'Interaction to Next Paint' },
+      { label: 'CLS', value: s.cls?.value, unit: '', rating: s.cls?.rating, desc: 'Cumulative Layout Shift' },
+      { label: 'FCP', value: s.fcp?.value, unit: 'ms', rating: s.fcp?.rating, desc: 'First Contentful Paint' },
+      { label: 'TBT', value: s.tbt?.value, unit: 'ms', rating: s.tbt?.rating, desc: 'Total Blocking Time' },
+      { label: 'SI', value: s.si?.value, unit: 'ms', rating: s.si?.rating, desc: 'Speed Index' },
+    ];
+
+    const formatValue = (v: number, u: string) => {
+      if (u === 'ms' && v >= 1000) return `${(v / 1000).toFixed(1)}s`;
+      if (u === 'ms') return `${Math.round(v)}ms`;
+      if (u === '') return v.toFixed(3);
+      return `${v}${u}`;
+    };
+
+    let html = '<h3 style="margin-bottom:var(--space-3);color:var(--text-primary)">Core Web Vitals & Metrics</h3>';
+    html += '<div class="cwv-grid">';
+    for (const m of metrics) {
+      const rating = m.rating || 'poor';
+      html += `<div class="cwv-card">
+        <div class="cwv-label">${m.label} <span style="font-size:0.6rem;text-transform:none">— ${m.desc}</span></div>
+        <div class="cwv-value rating-${rating}">${m.value != null ? formatValue(m.value, m.unit) : 'N/A'}</div>
+        <div class="cwv-rating rating-${rating}">${rating.replace('-', ' ')}</div>
+      </div>`;
+    }
+    html += '</div>';
+
+    // Page weight
+    const pw = data.pageWeight;
+    if (pw && pw.total > 0) {
+      const formatBytes = (b: number) => b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${(b / 1024).toFixed(0)} KB`;
+      const types = [
+        { label: 'Images', value: pw.images },
+        { label: 'JS', value: pw.js },
+        { label: 'CSS', value: pw.css },
+        { label: 'Fonts', value: pw.fonts },
+        { label: 'HTML', value: pw.html },
+        { label: 'Other', value: pw.other },
+      ].filter(t => t.value > 0).sort((a, b) => b.value - a.value);
+
+      const maxVal = Math.max(...types.map(t => t.value));
+
+      html += '<div class="weight-section"><h3>Page Weight — ' + formatBytes(pw.total) + ' total</h3>';
+      for (const t of types) {
+        const pct = Math.round((t.value / maxVal) * 100);
+        html += `<div class="weight-bar">
+          <span class="weight-label">${t.label}</span>
+          <div class="weight-track"><div class="weight-fill" style="width:${pct}%"></div></div>
+          <span class="weight-size">${formatBytes(t.value)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+  });
+</script>

@@ -1,0 +1,157 @@
+---
+/**
+ * Shared layout for analyzer drill-down pages.
+ * Reads audit result from sessionStorage, renders score + findings for a specific analyzer.
+ * Each page adds its own data-specific section via <slot />.
+ */
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  analyzerName: string;
+  displayName: string;
+}
+
+const { analyzerName, displayName } = Astro.props;
+---
+
+<BaseLayout title={displayName}>
+  <div id="dd-loading" class="dd-loading">
+    <p>Loading audit data...</p>
+    <a href="/">Run a new audit</a>
+  </div>
+
+  <div id="dd-content" style="display:none">
+    <!-- Header -->
+    <div class="dd-header">
+      <a href="/report" class="dd-back">&larr; Back to overview</a>
+      <div class="dd-title-row">
+        <h1 id="dd-display-name">{displayName}</h1>
+        <div class="dd-score-badge" id="dd-score-badge"></div>
+      </div>
+      <p class="dd-url" id="dd-url"></p>
+    </div>
+
+    <!-- Analyzer-specific data (from each page) -->
+    <slot />
+
+    <!-- Findings for this analyzer -->
+    <section class="dd-findings">
+      <h2>Findings</h2>
+      <div class="dd-tabs">
+        <button class="dd-tab active" data-severity="all">All</button>
+        <button class="dd-tab" data-severity="critical">Critical</button>
+        <button class="dd-tab" data-severity="warning">Warning</button>
+        <button class="dd-tab" data-severity="info">Info</button>
+        <button class="dd-tab" data-severity="pass">Pass</button>
+      </div>
+      <div id="dd-findings-list"></div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .dd-loading { text-align: center; padding: var(--space-16) 0; color: var(--text-muted); }
+  .dd-loading a { display: inline-block; margin-top: var(--space-4); }
+
+  .dd-header { margin-bottom: var(--space-6); }
+  .dd-back {
+    font-size: var(--text-sm); color: var(--text-muted);
+    margin-bottom: var(--space-3); display: inline-block;
+  }
+  .dd-back:hover { color: var(--accent-primary); }
+  .dd-title-row { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2); }
+  .dd-title-row h1 { color: var(--accent-primary); }
+  .dd-score-badge {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-heading); font-size: var(--text-xl); font-weight: 600;
+  }
+  .dd-url { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
+
+  .dd-findings { margin-top: var(--space-8); }
+  .dd-findings h2 { margin-bottom: var(--space-4); color: var(--text-primary); }
+  .dd-tabs { display: flex; gap: var(--space-1); margin-bottom: var(--space-4); flex-wrap: wrap; overflow-x: auto; }
+  .dd-tab {
+    padding: var(--space-1) var(--space-3);
+    background: var(--surface-2); border: 1px solid var(--border-default);
+    border-radius: var(--radius-full); font-size: var(--text-sm);
+    color: var(--text-secondary); cursor: pointer;
+    transition: all var(--transition-fast); min-height: 36px; min-width: 44px;
+  }
+  .dd-tab:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .dd-tab.active { background: var(--accent-primary); color: var(--text-inverse); border-color: var(--accent-primary); }
+</style>
+
+<script define:vars={{ analyzerName }}>
+  // Load audit data from sessionStorage
+  const raw = sessionStorage.getItem('webscope_result');
+  const loadingEl = document.getElementById('dd-loading');
+  const contentEl = document.getElementById('dd-content');
+
+  if (!raw) {
+    // No data — show loading message
+  } else {
+    const result = JSON.parse(raw);
+    const analyzerResult = result.results.find((r) => r.analyzer === analyzerName);
+
+    if (!analyzerResult) {
+      loadingEl.innerHTML = '<p>Analyzer data not found.</p><a href="/">Run a new audit</a>';
+    } else {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+
+      // Header
+      document.getElementById('dd-url').textContent = result.url;
+
+      const gradeColors = { A: '#22c55e', B: '#84cc16', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+      const color = gradeColors[analyzerResult.grade] || '#94a3b8';
+      document.getElementById('dd-score-badge').innerHTML =
+        `<span style="color:${color}">${analyzerResult.grade}</span> <span style="color:var(--text-primary)">${analyzerResult.score}/100</span>`;
+
+      // Expose data for page-specific scripts
+      window.__analyzerData = analyzerResult.data;
+      window.__analyzerResult = analyzerResult;
+      window.dispatchEvent(new CustomEvent('analyzer-data-ready'));
+
+      // Findings
+      const findings = analyzerResult.findings;
+      const severityColors = {
+        critical: 'var(--accent-danger)', warning: 'var(--accent-warning)',
+        info: 'var(--accent-primary)', pass: 'var(--accent-success)',
+      };
+
+      function renderFindings(severity) {
+        const filtered = severity === 'all' ? findings : findings.filter((f) => f.severity === severity);
+        const list = document.getElementById('dd-findings-list');
+        if (filtered.length === 0) {
+          list.innerHTML = '<p style="color:var(--text-muted);padding:var(--space-4)">No findings in this category.</p>';
+          return;
+        }
+        list.innerHTML = filtered.map((f) => `
+          <details style="border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--surface-2);margin-bottom:var(--space-2)">
+            <summary style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);cursor:pointer;list-style:none;font-size:var(--text-sm)">
+              <span style="font-size:0.625rem;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);color:var(--text-inverse);background:${severityColors[f.severity]}">${f.severity}</span>
+              <span style="flex:1;color:var(--text-primary);font-weight:500">${f.title}</span>
+              <span style="font-size:var(--text-xs);color:var(--text-muted)">${f.category}</span>
+            </summary>
+            <div style="padding:0 var(--space-4) var(--space-4);border-top:1px solid var(--border-default);padding-top:var(--space-3)">
+              <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${f.description}</p>
+              ${f.value || f.expected ? `<div style="display:flex;gap:var(--space-4);font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)">${f.value ? `<span>Current: <strong>${f.value}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${f.expected}</strong></span>` : ''}</div>` : ''}
+              <div style="font-size:var(--text-sm);color:var(--text-secondary);padding:var(--space-2) var(--space-3);background:var(--surface-3);border-radius:var(--radius-sm)"><strong>Recommendation:</strong> ${f.recommendation}</div>
+            </div>
+          </details>
+        `).join('');
+      }
+
+      renderFindings('all');
+
+      document.querySelectorAll('.dd-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.dd-tab').forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          renderFindings(tab.dataset.severity);
+        });
+      });
+    }
+  }
+</script>
