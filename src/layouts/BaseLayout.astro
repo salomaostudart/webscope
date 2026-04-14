@@ -3,6 +3,8 @@ import Sidebar from '../components/layout/Sidebar.astro';
 import ThemeToggle from '../components/layout/ThemeToggle.astro';
 import FeedbackButton from '../components/ui/FeedbackButton.astro';
 import CommandPalette from '../components/ui/CommandPalette.astro';
+import Toast from '../components/ui/Toast.astro';
+import ConfirmDialog from '../components/ui/ConfirmDialog.astro';
 
 interface Props {
   title: string;
@@ -68,6 +70,8 @@ const currentPath = Astro.url.pathname;
 
   <FeedbackButton />
   <CommandPalette />
+  <Toast />
+  <ConfirmDialog />
 </body>
 </html>
 
