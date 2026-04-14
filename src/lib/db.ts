@@ -39,7 +39,8 @@ export async function saveAudit(
 
     if (!response.ok) return null;
     return response.json() as Promise<SavedAudit>;
-  } catch {
+  } catch (err) {
+    if (import.meta.env?.DEV) console.error('AI fetch failed:', err);
     return null;
   }
 }
@@ -49,7 +50,8 @@ export async function getAudit(id: string): Promise<any | null> {
     const response = await fetch(`${WORKER_URL}/audits/${id}`);
     if (!response.ok) return null;
     return response.json();
-  } catch {
+  } catch (err) {
+    if (import.meta.env?.DEV) console.error('AI fetch failed:', err);
     return null;
   }
 }
@@ -62,7 +64,8 @@ export async function listAudits(domain?: string, limit = 20): Promise<AuditSumm
     const response = await fetch(`${WORKER_URL}/audits?${params}`);
     if (!response.ok) return [];
     return response.json() as Promise<AuditSummary[]>;
-  } catch {
+  } catch (err) {
+    if (import.meta.env?.DEV) console.error('AI fetch failed:', err);
     return [];
   }
 }

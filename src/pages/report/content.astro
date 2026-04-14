@@ -18,6 +18,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const d = (window as any).__analyzerData;
     if (!d) return;
@@ -40,7 +42,7 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
       html += '<h3 style="font-size:var(--text-base);color:var(--text-primary);margin-bottom:var(--space-2)">CTAs Detected</h3>';
       html += '<ul class="cta-list">';
       d.ctas.forEach((cta: any) => {
-        html += `<li class="cta-item"><strong>${cta.text}</strong> ${cta.href ? `→ ${cta.href}` : ''}</li>`;
+        html += `<li class="cta-item"><strong>${escapeHtml(cta.text)}</strong> ${cta.href ? `→ ${escapeHtml(cta.href)}` : ''}</li>`;
       });
       html += '</ul>';
     }

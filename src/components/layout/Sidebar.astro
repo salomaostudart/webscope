@@ -67,6 +67,7 @@ const isReportPage = currentPath.startsWith('/report');
               <a
                 href={item.href}
                 class:list={['nav-link', { active: currentPath === item.href || (item.href === '/report' && currentPath === '/report/') }]}
+                aria-current={(currentPath === item.href || (item.href === '/report' && currentPath === '/report/')) ? 'page' : undefined}
               >
                 <span class="nav-link-text">{item.label}</span>
               </a>

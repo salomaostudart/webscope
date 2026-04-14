@@ -50,8 +50,9 @@ export async function fetchAISuggestions(result: AuditResult): Promise<AISuggest
     }
 
     return data;
-  } catch {
+  } catch (err) {
     // AI unavailable — fail silently, UI shows findings without AI
+    if (import.meta.env?.DEV) console.error('AI fetch failed:', err);
     return null;
   }
 }

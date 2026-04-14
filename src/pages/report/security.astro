@@ -27,6 +27,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const d = (window as any).__analyzerData;
     if (!d) return;
@@ -50,13 +52,13 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
       html += '<div style="overflow-x:auto"><table class="headers-table"><thead><tr><th>Header</th><th>Status</th><th>Value</th></tr></thead><tbody>';
 
       html += `<tr><td>Strict-Transport-Security</td><td>${ok(h.hsts?.present)}</td><td>${h.hsts?.present ? `max-age=${h.hsts.maxAge}${h.hsts.includeSubDomains ? '; includeSubDomains' : ''}${h.hsts.preload ? '; preload' : ''}` : '—'}</td></tr>`;
-      html += `<tr><td>Content-Security-Policy</td><td>${ok(h.csp?.present)}${h.csp?.hasUnsafeInline ? ' <span class="sec-warn">(unsafe-inline)</span>' : ''}${h.csp?.hasUnsafeEval ? ' <span class="sec-warn">(unsafe-eval)</span>' : ''}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.csp?.value || '—'}</td></tr>`;
-      html += `<tr><td>X-Frame-Options</td><td>${ok(h.xFrameOptions?.present)}</td><td>${h.xFrameOptions?.value || '—'}</td></tr>`;
+      html += `<tr><td>Content-Security-Policy</td><td>${ok(h.csp?.present)}${h.csp?.hasUnsafeInline ? ' <span class="sec-warn">(unsafe-inline)</span>' : ''}${h.csp?.hasUnsafeEval ? ' <span class="sec-warn">(unsafe-eval)</span>' : ''}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.csp?.value ? escapeHtml(h.csp.value) : '—'}</td></tr>`;
+      html += `<tr><td>X-Frame-Options</td><td>${ok(h.xFrameOptions?.present)}</td><td>${h.xFrameOptions?.value ? escapeHtml(h.xFrameOptions.value) : '—'}</td></tr>`;
       html += `<tr><td>X-Content-Type-Options</td><td>${ok(h.xContentTypeOptions?.present)}</td><td>${h.xContentTypeOptions?.present ? 'nosniff' : '—'}</td></tr>`;
-      html += `<tr><td>Referrer-Policy</td><td>${ok(h.referrerPolicy?.present)}</td><td>${h.referrerPolicy?.value || '—'}</td></tr>`;
-      html += `<tr><td>Permissions-Policy</td><td>${ok(h.permissionsPolicy?.present)}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.permissionsPolicy?.value || '—'}</td></tr>`;
-      html += `<tr><td>Server</td><td>${h.server?.present ? (h.server.leaksInfo ? '<span class="sec-status sec-warn">Leaks info</span>' : '<span class="sec-status sec-present">OK</span>') : '<span style="color:var(--text-muted)">Not set</span>'}</td><td>${h.server?.value || '—'}</td></tr>`;
-      html += `<tr><td>X-Powered-By</td><td>${h.xPoweredBy?.present ? '<span class="sec-status sec-missing">Exposed</span>' : '<span style="color:var(--text-muted)">Not set (good)</span>'}</td><td>${h.xPoweredBy?.value || '—'}</td></tr>`;
+      html += `<tr><td>Referrer-Policy</td><td>${ok(h.referrerPolicy?.present)}</td><td>${h.referrerPolicy?.value ? escapeHtml(h.referrerPolicy.value) : '—'}</td></tr>`;
+      html += `<tr><td>Permissions-Policy</td><td>${ok(h.permissionsPolicy?.present)}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.permissionsPolicy?.value ? escapeHtml(h.permissionsPolicy.value) : '—'}</td></tr>`;
+      html += `<tr><td>Server</td><td>${h.server?.present ? (h.server.leaksInfo ? '<span class="sec-status sec-warn">Leaks info</span>' : '<span class="sec-status sec-present">OK</span>') : '<span style="color:var(--text-muted)">Not set</span>'}</td><td>${h.server?.value ? escapeHtml(h.server.value) : '—'}</td></tr>`;
+      html += `<tr><td>X-Powered-By</td><td>${h.xPoweredBy?.present ? '<span class="sec-status sec-missing">Exposed</span>' : '<span style="color:var(--text-muted)">Not set (good)</span>'}</td><td>${h.xPoweredBy?.value ? escapeHtml(h.xPoweredBy.value) : '—'}</td></tr>`;
 
       html += '</tbody></table></div></div>';
     }
@@ -65,7 +67,7 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
     if (d.mixedContent?.resources?.length > 0) {
       html += '<div class="sec-section"><h3>Mixed Content Resources</h3><ul style="padding-left:var(--space-4)">';
       d.mixedContent.resources.forEach((r: string) => {
-        html += `<li style="font-size:var(--text-sm);color:var(--grade-f);margin-bottom:var(--space-1);word-break:break-all">${r}</li>`;
+        html += `<li style="font-size:var(--text-sm);color:var(--grade-f);margin-bottom:var(--space-1);word-break:break-all">${escapeHtml(r)}</li>`;
       });
       html += '</ul></div>';
     }

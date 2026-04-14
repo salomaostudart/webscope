@@ -12,17 +12,6 @@ export function scoreToGrade(score: number): Grade {
   return 'F';
 }
 
-export function gradeColor(grade: Grade): string {
-  const colors: Record<Grade, string> = {
-    A: 'var(--grade-a)',
-    B: 'var(--grade-b)',
-    C: 'var(--grade-c)',
-    D: 'var(--grade-d)',
-    F: 'var(--grade-f)',
-  };
-  return colors[grade];
-}
-
 export type Severity = 'critical' | 'warning' | 'info' | 'pass';
 
 const SEVERITY_ORDER: Record<Severity, number> = {

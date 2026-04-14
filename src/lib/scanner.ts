@@ -33,8 +33,9 @@ export async function scanUrl(
       onProgress?.({ phase: 'lighthouse', message: 'Running Lighthouse analysis...' });
       try {
         return await fetchLighthouse(url);
-      } catch {
+      } catch (err) {
         // PSI can fail (timeout, rate limit) — continue without Lighthouse
+        if (import.meta.env?.DEV) console.error('AI fetch failed:', err);
         return null;
       }
     })(),

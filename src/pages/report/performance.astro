@@ -25,6 +25,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const data = (window as any).__analyzerData;
     if (!data) return;
@@ -52,9 +54,9 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
     for (const m of metrics) {
       const rating = m.rating || 'poor';
       html += `<div class="cwv-card">
-        <div class="cwv-label">${m.label} <span style="font-size:0.6rem;text-transform:none">— ${m.desc}</span></div>
-        <div class="cwv-value rating-${rating}">${m.value != null ? formatValue(m.value, m.unit) : 'N/A'}</div>
-        <div class="cwv-rating rating-${rating}">${rating.replace('-', ' ')}</div>
+        <div class="cwv-label">${escapeHtml(m.label)} <span style="font-size:0.6rem;text-transform:none">— ${escapeHtml(m.desc)}</span></div>
+        <div class="cwv-value rating-${escapeHtml(rating)}">${m.value != null ? formatValue(m.value, m.unit) : 'N/A'}</div>
+        <div class="cwv-rating rating-${escapeHtml(rating)}">${escapeHtml(rating.replace('-', ' '))}</div>
       </div>`;
     }
     html += '</div>';
@@ -78,7 +80,7 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
       for (const t of types) {
         const pct = Math.round((t.value / maxVal) * 100);
         html += `<div class="weight-bar">
-          <span class="weight-label">${t.label}</span>
+          <span class="weight-label">${escapeHtml(t.label)}</span>
           <div class="weight-track"><div class="weight-fill" style="width:${pct}%"></div></div>
           <span class="weight-size">${formatBytes(t.value)}</span>
         </div>`;

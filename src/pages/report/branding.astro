@@ -22,6 +22,8 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
 </style>
 
 <script>
+  import { escapeHtml } from '../../utils/sanitize';
+
   window.addEventListener('analyzer-data-ready', () => {
     const d = (window as any).__analyzerData;
     if (!d) return;
@@ -33,7 +35,7 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
       html += '<div class="brand-section"><h3>Color Palette (' + d.colors.totalUnique + ' unique colors)</h3>';
       html += '<div class="color-swatches">';
       d.colors.palette.slice(0, 16).forEach((c: any) => {
-        html += `<div class="color-swatch" style="background:${c.hex}" data-hex="${c.hex}" title="${c.hex}"></div>`;
+        html += `<div class="color-swatch" style="background:${escapeHtml(c.hex)}" data-hex="${escapeHtml(c.hex)}" title="${escapeHtml(c.hex)}"></div>`;
       });
       html += '</div></div>';
     }
@@ -43,7 +45,7 @@ import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
       html += '<div class="brand-section"><h3>Font Families (' + d.fonts.totalFamilies + ')</h3>';
       html += '<ul class="font-list">';
       d.fonts.families.forEach((f: any) => {
-        html += `<li class="font-item"><span class="font-name" style="font-family:'${f.name}',sans-serif">${f.name}</span><span class="font-source">${f.source}</span></li>`;
+        html += `<li class="font-item"><span class="font-name" style="font-family:'${escapeHtml(f.name)}',sans-serif">${escapeHtml(f.name)}</span><span class="font-source">${escapeHtml(f.source)}</span></li>`;
       });
       html += '</ul>';
       html += `<p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-2)">font-display: swap: ${d.fonts.hasDisplaySwap ? 'Yes' : 'No'} | Preload: ${d.fonts.hasPreload ? 'Yes' : 'No'}</p>`;

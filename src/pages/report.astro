@@ -203,10 +203,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <script>
   import { scanUrl } from '../lib/scanner';
   import type { AuditResult } from '../analyzers/base/analyzer.interface';
-  import { scoreToGrade } from '../utils/scoring';
   import { downloadCSV, downloadMarkdown } from '../utils/export';
   import { fetchAISuggestions } from '../lib/ai';
   import { saveAudit } from '../lib/db';
+  import { escapeHtml } from '../utils/sanitize';
 
   const loadingState = document.getElementById('loading-state')!;
   const errorState = document.getElementById('error-state')!;
@@ -251,17 +251,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const winsEl = document.getElementById('quick-wins')!;
 
           section.style.display = 'block';
-          summaryEl.innerHTML = `<span class="ai-label">AI Summary</span><p>${ai.summary}</p>`;
+          summaryEl.innerHTML = `<span class="ai-label">AI Summary</span><p>${escapeHtml(ai.summary)}</p>`;
 
           if (ai.quickWins && ai.quickWins.length > 0) {
             winsEl.innerHTML = `<h3>Quick Wins</h3><ul class="qw-list">${
               ai.quickWins.map((qw) => `
                 <li class="qw-item">
                   <span class="qw-gain">+${qw.estimatedScoreGain}</span>
-                  <span class="qw-title">${qw.title}</span>
+                  <span class="qw-title">${escapeHtml(qw.title)}</span>
                   <span class="qw-tags">
-                    <span class="qw-tag">${qw.impact}</span>
-                    <span class="qw-tag">${qw.effort}</span>
+                    <span class="qw-tag">${escapeHtml(qw.impact)}</span>
+                    <span class="qw-tag">${escapeHtml(qw.effort)}</span>
                   </span>
                 </li>
               `).join('')
@@ -309,9 +309,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const grade = result.overallGrade;
     const circleEl = document.getElementById('overall-circle')!;
     circleEl.innerHTML = `
-      <div class="grade-circle grade-${grade.toLowerCase()}" style="width:100px;height:100px">
-        <span style="font-family:var(--font-heading);font-size:2.5rem;font-weight:600;line-height:1">${grade}</span>
-        <span style="font-size:0.75rem;color:var(--text-secondary)">${result.overallScore}</span>
+      <div class="grade-circle grade-${escapeHtml(grade.toLowerCase())}" style="width:100px;height:100px">
+        <span style="font-family:var(--font-heading);font-size:2.5rem;font-weight:600;line-height:1">${escapeHtml(grade)}</span>
+        <span style="font-size:0.75rem;color:var(--text-secondary)">${escapeHtml(String(result.overallScore))}</span>
       </div>
     `;
     document.getElementById('overall-score')!.textContent = String(result.overallScore);
@@ -323,17 +323,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       content: 'Content', branding: 'Branding', security: 'Security',
     };
     grid.innerHTML = result.results.map((r) => `
-      <a class="score-card grade-border-${r.grade.toLowerCase()}" href="/report/${r.analyzer}">
+      <a class="score-card grade-border-${escapeHtml(r.grade.toLowerCase())}" href="/report/${escapeHtml(r.analyzer)}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2)">
-          <span style="font-family:var(--font-heading);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:0.04em;color:var(--text-primary)">${analyzerNames[r.analyzer] || r.analyzer}</span>
-          <span class="grade-text-${r.grade.toLowerCase()}" style="font-family:var(--font-heading);font-size:var(--text-lg);font-weight:600">${r.grade}</span>
+          <span style="font-family:var(--font-heading);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:0.04em;color:var(--text-primary)">${escapeHtml(analyzerNames[r.analyzer] || r.analyzer)}</span>
+          <span class="grade-text-${escapeHtml(r.grade.toLowerCase())}" style="font-family:var(--font-heading);font-size:var(--text-lg);font-weight:600">${escapeHtml(r.grade)}</span>
         </div>
         <div style="margin-bottom:var(--space-2)">
-          <span style="font-family:var(--font-heading);font-size:var(--text-2xl);font-weight:600;color:var(--text-primary)">${r.score}</span>
+          <span style="font-family:var(--font-heading);font-size:var(--text-2xl);font-weight:600;color:var(--text-primary)">${escapeHtml(String(r.score))}</span>
           <span style="font-size:var(--text-sm);color:var(--text-muted)">/100</span>
         </div>
         <div style="height:4px;background:var(--surface-3);border-radius:var(--radius-full);overflow:hidden">
-          <div class="grade-bg-${r.grade.toLowerCase()}" style="height:100%;width:${r.score}%;border-radius:var(--radius-full)"></div>
+          <div class="grade-bg-${escapeHtml(r.grade.toLowerCase())}" style="height:100%;width:${escapeHtml(String(r.score))}%;border-radius:var(--radius-full)"></div>
         </div>
       </a>
     `).join('');
@@ -399,11 +399,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     container.style.height = 'auto';
     container.innerHTML = result.results.map((r) => `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="min-width:90px;font-size:13px;color:#94a3b8">${labels[r.analyzer] || r.analyzer}</span>
+        <span style="min-width:90px;font-size:13px;color:#94a3b8">${escapeHtml(labels[r.analyzer] || r.analyzer)}</span>
         <div style="flex:1;height:24px;background:#1a1a24;border-radius:4px;overflow:hidden;position:relative">
-          <div style="width:${r.score}%;height:100%;background:${gradeColors[r.grade]};border-radius:4px;transition:width 0.5s ease"></div>
+          <div style="width:${escapeHtml(String(r.score))}%;height:100%;background:${gradeColors[r.grade] || '#94a3b8'};border-radius:4px;transition:width 0.5s ease"></div>
         </div>
-        <span style="min-width:32px;text-align:right;font-family:var(--font-heading);font-size:14px;font-weight:600;color:${gradeColors[r.grade]}">${r.score}</span>
+        <span style="min-width:32px;text-align:right;font-family:var(--font-heading);font-size:14px;font-weight:600;color:${gradeColors[r.grade] || '#94a3b8'}">${escapeHtml(String(r.score))}</span>
       </div>
     `).join('');
   }
@@ -428,15 +428,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       list.innerHTML = filtered.map((f) => `
         <details class="finding-card">
           <summary class="finding-summary">
-            <span class="finding-severity" style="background:${severityColors[f.severity] || 'var(--text-muted)'}">${f.severity}</span>
-            <span class="finding-title">${f.title}</span>
-            <span class="finding-category">${f.category}</span>
+            <span class="finding-severity" style="background:${severityColors[f.severity] || 'var(--text-muted)'}">${escapeHtml(f.severity)}</span>
+            <span class="finding-title">${escapeHtml(f.title)}</span>
+            <span class="finding-category">${escapeHtml(f.category)}</span>
           </summary>
           <div class="finding-body">
-            <p class="finding-description">${f.description}</p>
-            ${f.value || f.expected ? `<div class="finding-values">${f.value ? `<span>Current: <strong>${f.value}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${f.expected}</strong></span>` : ''}</div>` : ''}
-            <div class="finding-recommendation"><strong>Recommendation:</strong> ${f.recommendation}</div>
-            ${f.impact || f.effort ? `<div class="finding-meta">${f.impact ? `<span class="finding-tag">Impact: ${f.impact}</span>` : ''}${f.effort ? `<span class="finding-tag">Effort: ${f.effort}</span>` : ''}</div>` : ''}
+            <p class="finding-description">${escapeHtml(f.description)}</p>
+            ${f.value || f.expected ? `<div class="finding-values">${f.value ? `<span>Current: <strong>${escapeHtml(f.value)}</strong></span>` : ''}${f.expected ? `<span>Expected: <strong>${escapeHtml(f.expected)}</strong></span>` : ''}</div>` : ''}
+            <div class="finding-recommendation"><strong>Recommendation:</strong> ${escapeHtml(f.recommendation)}</div>
+            ${f.impact || f.effort ? `<div class="finding-meta">${f.impact ? `<span class="finding-tag">Impact: ${escapeHtml(f.impact)}</span>` : ''}${f.effort ? `<span class="finding-tag">Effort: ${escapeHtml(f.effort)}</span>` : ''}</div>` : ''}
           </div>
         </details>
       `).join('');

@@ -29,3 +29,4 @@ Thumbs.db
 worker/node_modules/
 worker/dist/
 worker/.wrangler/
+test-screenshots
