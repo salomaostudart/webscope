@@ -1,0 +1,66 @@
+---
+import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
+---
+
+<DrillDownLayout analyzerName="branding" displayName="Branding">
+  <div id="branding-data"></div>
+</DrillDownLayout>
+
+<style>
+  .brand-section { margin-bottom: var(--space-6); }
+  .brand-section h3 { font-size: var(--text-base); color: var(--text-primary); margin-bottom: var(--space-3); }
+  .color-swatches { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .color-swatch { width: 48px; height: 48px; border-radius: var(--radius-md); border: 1px solid var(--border-default); position: relative; cursor: default; }
+  .color-swatch::after { content: attr(data-hex); position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); }
+  .font-list { list-style: none; padding: 0; }
+  .font-item { padding: var(--space-2) 0; border-bottom: 1px solid var(--border-default); font-size: var(--text-sm); display: flex; justify-content: space-between; align-items: center; }
+  .font-name { font-weight: 600; color: var(--text-primary); }
+  .font-source { font-size: var(--text-xs); color: var(--text-muted); padding: 2px 8px; border: 1px solid var(--border-default); border-radius: var(--radius-full); }
+  .brand-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px,100%), 1fr)); gap: var(--space-3); }
+  .brand-check { padding: var(--space-3); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); font-size: var(--text-sm); display: flex; align-items: center; gap: var(--space-2); }
+  .check-icon { font-size: var(--text-lg); }
+</style>
+
+<script>
+  window.addEventListener('analyzer-data-ready', () => {
+    const d = (window as any).__analyzerData;
+    if (!d) return;
+    const container = document.getElementById('branding-data')!;
+    let html = '';
+
+    // Colors
+    if (d.colors?.palette?.length > 0) {
+      html += '<div class="brand-section"><h3>Color Palette (' + d.colors.totalUnique + ' unique colors)</h3>';
+      html += '<div class="color-swatches">';
+      d.colors.palette.slice(0, 16).forEach((c: any) => {
+        html += `<div class="color-swatch" style="background:${c.hex}" data-hex="${c.hex}" title="${c.hex}"></div>`;
+      });
+      html += '</div></div>';
+    }
+
+    // Fonts
+    if (d.fonts?.families?.length > 0) {
+      html += '<div class="brand-section"><h3>Font Families (' + d.fonts.totalFamilies + ')</h3>';
+      html += '<ul class="font-list">';
+      d.fonts.families.forEach((f: any) => {
+        html += `<li class="font-item"><span class="font-name" style="font-family:'${f.name}',sans-serif">${f.name}</span><span class="font-source">${f.source}</span></li>`;
+      });
+      html += '</ul>';
+      html += `<p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-2)">font-display: swap: ${d.fonts.hasDisplaySwap ? 'Yes' : 'No'} | Preload: ${d.fonts.hasPreload ? 'Yes' : 'No'}</p>`;
+      html += '</div>';
+    }
+
+    // Checks
+    const ok = (v: boolean) => v ? '<span class="check-icon" style="color:var(--grade-a)">&#10003;</span>' : '<span class="check-icon" style="color:var(--grade-f)">&#10007;</span>';
+    html += '<div class="brand-section"><h3>Brand Assets</h3><div class="brand-grid">';
+    html += `<div class="brand-check">${ok(d.logo?.found)} Logo</div>`;
+    html += `<div class="brand-check">${ok(d.favicon?.found)} Favicon ${d.favicon?.type ? `(${d.favicon.type})` : ''}</div>`;
+    html += `<div class="brand-check">${ok(d.appleTouchIcon)} Apple Touch Icon</div>`;
+    html += `<div class="brand-check">${ok(!!d.ogImage)} OG Image</div>`;
+    html += `<div class="brand-check">${ok(!!d.themeColor)} Theme Color ${d.themeColor ? `(${d.themeColor})` : ''}</div>`;
+    html += `<div class="brand-check">${ok(d.manifest?.found)} PWA Manifest</div>`;
+    html += '</div></div>';
+
+    container.innerHTML = html;
+  });
+</script>

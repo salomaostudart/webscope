@@ -1,0 +1,50 @@
+---
+import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
+---
+
+<DrillDownLayout analyzerName="content" displayName="Content">
+  <div id="content-data"></div>
+</DrillDownLayout>
+
+<style>
+  .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px,100%), 1fr)); gap: var(--space-3); margin-bottom: var(--space-6); }
+  .content-stat { padding: var(--space-4); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+  .content-stat-value { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 600; color: var(--text-primary); }
+  .content-stat-label { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; margin-top: var(--space-1); }
+  .content-stat-sub { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-1); }
+  .cta-list { list-style: none; padding: 0; }
+  .cta-item { padding: var(--space-2); font-size: var(--text-sm); border-bottom: 1px solid var(--border-default); color: var(--text-secondary); }
+  .cta-item:last-child { border-bottom: none; }
+</style>
+
+<script>
+  window.addEventListener('analyzer-data-ready', () => {
+    const d = (window as any).__analyzerData;
+    if (!d) return;
+    const container = document.getElementById('content-data')!;
+
+    const readabilityColors: Record<string, string> = { easy: 'var(--grade-a)', moderate: 'var(--grade-c)', difficult: 'var(--grade-f)' };
+
+    let html = '<div class="content-grid">';
+    html += `<div class="content-stat"><div class="content-stat-value">${d.wordCount || 0}</div><div class="content-stat-label">Words</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value" style="color:${readabilityColors[d.readabilityLevel] || 'var(--text-primary)'}">${d.readabilityScore || 0}</div><div class="content-stat-label">Readability</div><div class="content-stat-sub">${d.readabilityLevel || 'N/A'}</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.images?.total || 0}</div><div class="content-stat-label">Images</div><div class="content-stat-sub">${d.images?.withoutAlt || 0} without alt</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.ctas?.length || 0}</div><div class="content-stat-label">CTAs Found</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.hasFAQ ? 'Yes' : 'No'}</div><div class="content-stat-label">FAQ Section</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.hasContactInfo ? 'Yes' : 'No'}</div><div class="content-stat-label">Contact Info</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.hasSocialLinks ? 'Yes' : 'No'}</div><div class="content-stat-label">Social Links</div></div>`;
+    html += `<div class="content-stat"><div class="content-stat-value">${d.hasFavicon ? 'Yes' : 'No'}</div><div class="content-stat-label">Favicon</div></div>`;
+    html += '</div>';
+
+    if (d.ctas?.length > 0) {
+      html += '<h3 style="font-size:var(--text-base);color:var(--text-primary);margin-bottom:var(--space-2)">CTAs Detected</h3>';
+      html += '<ul class="cta-list">';
+      d.ctas.forEach((cta: any) => {
+        html += `<li class="cta-item"><strong>${cta.text}</strong> ${cta.href ? `→ ${cta.href}` : ''}</li>`;
+      });
+      html += '</ul>';
+    }
+
+    container.innerHTML = html;
+  });
+</script>

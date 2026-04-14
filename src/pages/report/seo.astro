@@ -1,0 +1,69 @@
+---
+import DrillDownLayout from '../../layouts/DrillDownLayout.astro';
+---
+
+<DrillDownLayout analyzerName="seo" displayName="SEO">
+  <div id="seo-data"></div>
+</DrillDownLayout>
+
+<style>
+  .seo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+  .seo-card { padding: var(--space-4); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+  .seo-card h4 { font-size: var(--text-sm); color: var(--accent-primary); margin-bottom: var(--space-2); }
+  .seo-value { font-size: var(--text-sm); color: var(--text-secondary); word-break: break-all; }
+  .seo-value strong { color: var(--text-primary); }
+  .seo-status { display: inline-block; padding: 1px 6px; border-radius: var(--radius-full); font-size: 0.625rem; font-weight: 600; }
+  .seo-ok { background: rgba(34,197,94,0.15); color: var(--grade-a); }
+  .seo-warn { background: rgba(245,158,11,0.15); color: var(--grade-c); }
+  .seo-fail { background: rgba(239,68,68,0.15); color: var(--grade-f); }
+</style>
+
+<script>
+  window.addEventListener('analyzer-data-ready', () => {
+    const d = (window as any).__analyzerData;
+    if (!d) return;
+    const container = document.getElementById('seo-data')!;
+
+    const status = (ok: boolean, warn?: boolean) => warn ? '<span class="seo-status seo-warn">WARN</span>' : ok ? '<span class="seo-status seo-ok">OK</span>' : '<span class="seo-status seo-fail">MISSING</span>';
+
+    let html = '<div class="seo-grid">';
+
+    // Title
+    html += `<div class="seo-card"><h4>Title ${status(!!d.title?.value, d.title?.value && !d.title?.isOptimal)}</h4>
+      <p class="seo-value">${d.title?.value ? `<strong>${d.title.value}</strong> (${d.title.length} chars)` : 'Not set'}</p></div>`;
+
+    // Meta description
+    html += `<div class="seo-card"><h4>Meta Description ${status(!!d.metaDescription?.value, d.metaDescription?.value && !d.metaDescription?.isOptimal)}</h4>
+      <p class="seo-value">${d.metaDescription?.value ? `${d.metaDescription.value.substring(0, 100)}... (${d.metaDescription.length} chars)` : 'Not set'}</p></div>`;
+
+    // Headings
+    const h = d.headings;
+    html += `<div class="seo-card"><h4>Headings ${status(h?.h1?.length === 1 && h?.hierarchyValid)}</h4>
+      <p class="seo-value">H1: ${h?.h1?.length || 0} | H2: ${h?.h2?.length || 0} | H3: ${h?.h3?.length || 0}<br>
+      Hierarchy: ${h?.hierarchyValid ? 'Valid' : 'Broken'}</p></div>`;
+
+    // Images
+    html += `<div class="seo-card"><h4>Images ${status(d.images?.withoutAlt === 0)}</h4>
+      <p class="seo-value">Total: ${d.images?.total || 0} | With alt: ${d.images?.withAlt || 0} | Without: ${d.images?.withoutAlt || 0}</p></div>`;
+
+    // Links
+    html += `<div class="seo-card"><h4>Links</h4>
+      <p class="seo-value">Internal: ${d.links?.internal || 0} | External: ${d.links?.external || 0}${d.links?.noText?.length ? ` | Non-descriptive: ${d.links.noText.length}` : ''}</p></div>`;
+
+    // Canonical
+    html += `<div class="seo-card"><h4>Canonical ${status(!!d.canonical)}</h4>
+      <p class="seo-value">${d.canonical || 'Not set'}</p></div>`;
+
+    // Open Graph
+    const ogKeys = d.openGraph ? Object.entries(d.openGraph).filter(([,v]) => v) : [];
+    html += `<div class="seo-card"><h4>Open Graph ${status(ogKeys.length >= 3)}</h4>
+      <p class="seo-value">${ogKeys.length > 0 ? ogKeys.map(([k,v]) => `${k}: ${(v as string).substring(0, 50)}`).join('<br>') : 'Not set'}</p></div>`;
+
+    // Structured Data
+    html += `<div class="seo-card"><h4>Structured Data ${status(d.structuredData?.length > 0)}</h4>
+      <p class="seo-value">${d.structuredData?.length > 0 ? d.structuredData.map((s: any) => s.type).join(', ') : 'None found'}</p></div>`;
+
+    html += '</div>';
+    container.innerHTML = html;
+  });
+</script>
