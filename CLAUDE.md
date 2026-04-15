@@ -1,5 +1,7 @@
 # WebScope — Regras do Projeto
 
+> Referencia tecnica do workspace: `hq/reference/boas-praticas.md` (Sec 1.3 HTML/CSS/JS, 2.3 integracao, 3.7 Cloudflare Workers)
+
 ## O que e
 Website intelligence platform — auditoria tecnica de qualquer URL publica.
 6 categorias: Performance, SEO, Accessibility, Content, Branding, Security.
