@@ -11,6 +11,7 @@ interface Env {
   DB: D1Database;
   FEEDBACK_SCREENSHOTS: KVNamespace;
   GITHUB_TOKEN: string;
+  ADMIN_TOKEN?: string;
 }
 
 // --- SSRF protection ---
@@ -154,8 +155,16 @@ export default {
       return handleListAudits(domain, limit, env, cors);
     }
 
-    // Route: DELETE /audits — clear all audits
+    // Route: DELETE /audits — clear all audits (requires ADMIN_TOKEN)
     if (url.pathname === '/audits' && request.method === 'DELETE') {
+      const authHeader = request.headers.get('Authorization');
+      const expectedToken = env.ADMIN_TOKEN;
+      if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...cors },
+        });
+      }
       return handleClearAudits(env, cors);
     }
 
