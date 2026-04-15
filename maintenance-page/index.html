@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Under Maintenance</title>
-  <meta name="robots" content="noindex, nofollow">
+  <title>Under Maintenance | WebScope</title>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.1);
+      --accent-border: rgba(16, 185, 129, 0.25);
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       min-height: 100vh;
@@ -23,39 +28,39 @@
     .container { max-width: 520px; text-align: center; }
     .icon {
       width: 64px; height: 64px; margin: 0 auto 24px; border-radius: 16px;
-      background: rgba(129, 140, 248, 0.1);
+      background: var(--accent-dim);
       display: flex; align-items: center; justify-content: center;
     }
-    .icon svg { width: 32px; height: 32px; stroke: #818cf8; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    h1 { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 600; color: #818cf8; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .icon svg { width: 32px; height: 32px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    h1 { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 600; color: var(--accent); margin-bottom: 12px; letter-spacing: 0.5px; }
     .subtitle { font-size: 18px; font-weight: 500; color: #e2e8f0; margin-bottom: 8px; }
     .description { font-size: 15px; color: #94a3b8; line-height: 1.6; margin-bottom: 32px; }
-    .divider { width: 48px; height: 2px; background: #818cf8; margin: 0 auto 28px; border-radius: 1px; }
+    .divider { width: 48px; height: 2px; background: var(--accent); margin: 0 auto 28px; border-radius: 1px; }
     .links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
     .links a {
       display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
       border: 1px solid #2d2d3d; border-radius: 8px; color: #e2e8f0;
       text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;
     }
-    .links a:hover { border-color: #818cf8; background: rgba(129, 140, 248, 0.08); color: #818cf8; }
+    .links a:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
     .links a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
     .email {
-      display: inline-flex; align-items: center; gap: 8px; color: #818cf8;
+      display: inline-flex; align-items: center; gap: 8px; color: var(--accent);
       text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 16px;
       border-radius: 6px; transition: background 0.2s;
     }
-    .email:hover { background: rgba(129, 140, 248, 0.08); }
+    .email:hover { background: var(--accent-dim); }
     .email svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="icon">
-      <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     </div>
     <h1>Under Maintenance</h1>
     <p class="subtitle">We'll be back soon</p>
-    <p class="description">This project is currently being updated with new features and improvements.</p>
+    <p class="description">WebScope is currently being updated with new features and improvements.</p>
     <div class="divider"></div>
     <div class="links">
       <a href="https://github.com/salomaostudart" target="_blank" rel="noopener">
