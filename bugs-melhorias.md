@@ -1,5 +1,8 @@
 # WebScope — Bugs e Melhorias
 
+> **Deps:** Tracker local MAINTENANCE | 4 bugs abertos (B014-B019)
+> **Registry:** hq/reference/dependencias.md
+
 ## Pendentes
 
 ### Seguranca (LOW — nao bloqueantes)
