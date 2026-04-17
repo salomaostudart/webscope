@@ -23,7 +23,7 @@ Infraestrutura, deploy, custom domains, rollback.
 - Nome: `webscope`
 - Branch de producao: `main`
 - Build output: `dist/`
-- Account ID: `90b9fa2fb0b4591bb79e75032e26d029`
+- Account ID: `<your-cloudflare-account-id>` (set via env var CLOUDFLARE_ACCOUNT_ID)
 
 ### Custom domain
 - `webscope.sal.dev.br` → CNAME para `webscope-26x.pages.dev`
@@ -35,7 +35,7 @@ Infraestrutura, deploy, custom domains, rollback.
 ```bash
 cd ~/Desktop/Projetos/webscope
 npm run build
-CLOUDFLARE_ACCOUNT_ID=90b9fa2fb0b4591bb79e75032e26d029 npx wrangler pages deploy dist --project-name webscope --branch main
+CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID npx wrangler pages deploy dist --project-name webscope --branch main
 ```
 
 ### Deploy automatico (quando Actions desbloqueado)
@@ -48,7 +48,7 @@ Cloudflare Pages mantém historico de deploys. Para rollback:
 
 ```bash
 # Listar deploys anteriores
-CLOUDFLARE_ACCOUNT_ID=90b9fa2fb0b4591bb79e75032e26d029 npx wrangler pages deployments list --project-name webscope
+CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID npx wrangler pages deployments list --project-name webscope
 
 # Rollback para deploy especifico (via dashboard)
 # Cloudflare Dashboard → Pages → webscope → Deployments → Rollback to this deployment
@@ -67,7 +67,7 @@ CLOUDFLARE_ACCOUNT_ID=90b9fa2fb0b4591bb79e75032e26d029 npx wrangler pages deploy
 
 ```bash
 cd ~/Desktop/Projetos/webscope/worker
-CLOUDFLARE_ACCOUNT_ID=90b9fa2fb0b4591bb79e75032e26d029 npx wrangler deploy
+CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID npx wrangler deploy
 ```
 
 ### Variaveis de ambiente do Worker
