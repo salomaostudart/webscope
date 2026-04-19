@@ -84,3 +84,15 @@ cd worker && npm run deploy # Deploy worker
 
 Ao entrar no projeto, ler CLAUDE.md + docs relevantes para a tarefa.
 Para entendimento completo: ler `docs/engenharia/00-indice.md`.
+
+## SEO (intencional restrito)
+
+A maintenance-page (site live em webscope.sal.dev.br) e uma **pagina publica de acesso restrito** — nao deve ser indexada.
+
+- `maintenance-page/robots.txt`: `Disallow: /` (valido e explicito)
+- `maintenance-page/_redirects`: regra `/robots.txt /robots.txt 200` antes do catch-all `/* /index.html 200` (necessario — sem isso o SPA redirect intercepta robots.txt)
+- `maintenance-page/index.html`: `<meta name="robots" content="noindex, nofollow, ...">` + meta description
+- `maintenance-page/_headers`: `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet` em todas as rotas
+- Lighthouse SEO score ~45/100 e **esperado** (blocked indexing = comportamento correto)
+
+Nao "fix" SEO score — e feature, nao bug.
