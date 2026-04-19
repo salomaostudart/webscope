@@ -36,7 +36,10 @@ function isUrlSafe(urlString: string): { safe: boolean; reason?: string } {
     const url = new URL(urlString);
 
     if (!['http:', 'https:'].includes(url.protocol)) {
-      return { safe: false, reason: 'Only http and https protocols are allowed' };
+      return {
+        safe: false,
+        reason: 'Only http and https protocols are allowed',
+      };
     }
 
     if (!url.hostname) {
@@ -44,7 +47,10 @@ function isUrlSafe(urlString: string): { safe: boolean; reason?: string } {
     }
 
     if (url.hostname === 'localhost' || url.hostname.endsWith('.local')) {
-      return { safe: false, reason: 'Localhost and local addresses are not allowed' };
+      return {
+        safe: false,
+        reason: 'Localhost and local addresses are not allowed',
+      };
     }
 
     if (
@@ -65,7 +71,10 @@ function isUrlSafe(urlString: string): { safe: boolean; reason?: string } {
       return { safe: false, reason: 'Numeric IP encoding not allowed' };
 
     if (PRIVATE_RANGES.some((r) => r.test(url.hostname))) {
-      return { safe: false, reason: 'Private/internal IP addresses are not allowed' };
+      return {
+        safe: false,
+        reason: 'Private/internal IP addresses are not allowed',
+      };
     }
 
     return { safe: true };
@@ -124,6 +133,13 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    // Route: GET /health — liveness check
+    if (url.pathname === '/health' && request.method === 'GET') {
+      return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
+        headers: { 'Content-Type': 'application/json', ...cors },
+      });
+    }
 
     // Route: POST /ai — AI suggestions
     if (url.pathname === '/ai' && request.method === 'POST') {
@@ -654,7 +670,10 @@ async function handleFeedback(
     return jsonError('Feedback rate limit exceeded.', 429, cors);
   }
   if (!entry || now > (entry?.resetAt ?? 0)) {
-    feedbackRateCounts.set(clientIp, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    feedbackRateCounts.set(clientIp, {
+      count: 1,
+      resetAt: now + 60 * 60 * 1000,
+    });
   } else {
     entry.count++;
   }
@@ -733,7 +752,10 @@ async function handleFeedback(
       return jsonError(`GitHub API error: ${ghResponse.status}`, 502, cors);
     }
 
-    const issue = (await ghResponse.json()) as { number: number; html_url: string };
+    const issue = (await ghResponse.json()) as {
+      number: number;
+      html_url: string;
+    };
 
     return new Response(
       JSON.stringify({

@@ -1,3 +1,5 @@
+/// <reference types="@cloudflare/workers-types" />
+
 /**
  * Cloudflare Pages Function middleware — access gate.
  *
@@ -13,7 +15,7 @@ interface Env {
 }
 
 // Paths that bypass the gate (always accessible)
-const PUBLIC_PATHS = ['/api/access', '/favicon.svg'];
+const PUBLIC_PATHS = ["/api/access", "/favicon.svg"];
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env, next } = context;
@@ -25,7 +27,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   // Check access cookie
-  const cookie = parseCookies(request.headers.get('Cookie') || '');
+  const cookie = parseCookies(request.headers.get("Cookie") || "");
   const token = cookie.ws_access;
 
   if (token && (await isValidToken(token, env.ACCESS_CODE))) {
@@ -37,18 +39,18 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   return new Response(getMaintenancePage(), {
     status: 200,
     headers: {
-      'Content-Type': 'text/html;charset=utf-8',
-      'Cache-Control': 'no-cache',
+      "Content-Type": "text/html;charset=utf-8",
+      "Cache-Control": "no-cache",
     },
   });
 };
 
 async function generateToken(code: string): Promise<string> {
   const data = new TextEncoder().encode(`${code}-webscope-access`);
-  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hash = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 async function isValidToken(token: string, code: string): Promise<boolean> {
@@ -65,9 +67,9 @@ async function isValidToken(token: string, code: string): Promise<boolean> {
 
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
-  for (const pair of cookieHeader.split(';')) {
-    const [key, ...vals] = pair.trim().split('=');
-    if (key) cookies[key.trim()] = vals.join('=').trim();
+  for (const pair of cookieHeader.split(";")) {
+    const [key, ...vals] = pair.trim().split("=");
+    if (key) cookies[key.trim()] = vals.join("=").trim();
   }
   return cookies;
 }

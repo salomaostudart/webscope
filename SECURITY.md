@@ -1,7 +1,5 @@
 # Security Policy
 
-Template de disclosure policy. Copie para raiz do seu projeto clonado deste template e adapte os campos marcados com `<ADAPTAR>`.
-
 ## Supported Versions
 
 | Version | Supported |
@@ -15,9 +13,8 @@ Template de disclosure policy. Copie para raiz do seu projeto clonado deste temp
 
 ### Canais
 
-1. **Email:** `<security@seudominio.com.br>` (ou `<seu-email>+security@gmail.com>` se nao tem dominio corporativo)
-2. **GitHub Security Advisory:** https://github.com/`<owner>`/`<repo>`/security/advisories/new
-3. **PGP:** (opcional) fingerprint `<ADAPTAR-SE-APLICAVEL>`
+1. **Email:** `salomaostudart@gmail.com` (subject: `[security] webscope — <descricao breve>`)
+2. **GitHub Security Advisory:** https://github.com/salomaostudart/webscope/security/advisories/new
 
 ### Resposta esperada
 
@@ -49,7 +46,7 @@ Este projeto segue padroes 2026 documentados em [`docs/security/`](docs/security
 - [Logging & observability](docs/security/05-logging-observability.md)
 - [Zero Trust principles](docs/security/06-zero-trust.md)
 - [IAM & auth](docs/security/07-iam-auth.md)
-- [Compliance (LGPD/SOC2/ISO27001)](docs/security/08-compliance.md)
+- [Compliance (LGPD)](docs/security/08-compliance.md)
 - [Incident response](docs/security/09-incident-response.md)
 - [SBOM](docs/security/10-sbom.md)
 
@@ -57,9 +54,7 @@ Auditoria automatizada: `/security-audit` (Claude Code skill em `.claude/skills/
 
 ## Compliance
 
-- LGPD (Brasil): `<ADAPTAR-SE-APLICAVEL>` — base legal + DPO + direitos do titular
-- SOC 2: `<ADAPTAR-SE-APLICAVEL>` — controls dos 5 trust criteria
-- ISO 27001: `<ADAPTAR-SE-APLICAVEL>` — Annex A controls implementados
+- **LGPD (Brasil):** dados de URL analisada e IP de cliente sao processados para fins legitimos de auditoria web. Sem coleta de dados pessoais sensiveis. Dados de audit salvos em Cloudflare D1 (regiao: automatica). Direito de exclusao: DELETE /audits (admin token necessario).
 
 ## Acknowledgments
 
