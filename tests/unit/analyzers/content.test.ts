@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { ContentAnalyzer } from '../../../src/analyzers/content/content.analyzer';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import type { AnalysisInput } from '../../../src/analyzers/base/analyzer.interface';
+import { ContentAnalyzer } from '../../../src/analyzers/content/content.analyzer';
 
 const goodHtml = readFileSync(join(__dirname, '../mocks/html-good.html'), 'utf-8');
 const badHtml = readFileSync(join(__dirname, '../mocks/html-bad.html'), 'utf-8');
@@ -51,7 +51,7 @@ describe('ContentAnalyzer', () => {
     });
 
     it('should detect contact info (email in footer)', async () => {
-      const htmlWithEmail = goodHtml + '<a href="mailto:test@example.com">Contact</a>';
+      const htmlWithEmail = `${goodHtml}<a href="mailto:test@example.com">Contact</a>`;
       const result = await analyzer.analyze(createInput({ html: htmlWithEmail }));
       expect(result.data.hasContactInfo).toBe(true);
     });
@@ -94,7 +94,8 @@ describe('ContentAnalyzer', () => {
 
   describe('CTA detection', () => {
     it('should detect CTA buttons', async () => {
-      const html = '<html><body><a href="/signup">Sign Up Now</a><button>Get Started</button></body></html>';
+      const html =
+        '<html><body><a href="/signup">Sign Up Now</a><button>Get Started</button></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.ctas.length).toBeGreaterThanOrEqual(2);
     });

@@ -11,8 +11,14 @@ export function extractTitle(html: string): string | null {
 export function extractMetaContent(html: string, name: string): string | null {
   // Match both name="..." and property="..." (for Open Graph)
   const patterns = [
-    new RegExp(`<meta[^>]+(?:name|property)=["']${escapeRegex(name)}["'][^>]+content=["']([^"']*)["']`, 'i'),
-    new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:name|property)=["']${escapeRegex(name)}["']`, 'i'),
+    new RegExp(
+      `<meta[^>]+(?:name|property)=["']${escapeRegex(name)}["'][^>]+content=["']([^"']*)["']`,
+      'i',
+    ),
+    new RegExp(
+      `<meta[^>]+content=["']([^"']*)["'][^>]+(?:name|property)=["']${escapeRegex(name)}["']`,
+      'i',
+    ),
   ];
 
   for (const pattern of patterns) {
@@ -31,8 +37,9 @@ export function extractViewport(html: string): string | null {
 }
 
 export function extractCanonical(html: string): string | null {
-  const match = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']*)["']/i)
-    || html.match(/<link[^>]+href=["']([^"']*)["'][^>]+rel=["']canonical["']/i);
+  const match =
+    html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']*)["']/i) ||
+    html.match(/<link[^>]+href=["']([^"']*)["'][^>]+rel=["']canonical["']/i);
   return match ? match[1].trim() : null;
 }
 
@@ -53,7 +60,12 @@ export interface HeadingsResult {
 
 export function extractHeadings(html: string): HeadingsResult {
   const result: HeadingsResult = {
-    h1: [], h2: [], h3: [], h4: [], h5: [], h6: [],
+    h1: [],
+    h2: [],
+    h3: [],
+    h4: [],
+    h5: [],
+    h6: [],
     hierarchyValid: true,
   };
 
@@ -66,7 +78,7 @@ export function extractHeadings(html: string): HeadingsResult {
     const text = stripTags(match[2]).trim();
     result[tag].push(text);
 
-    const level = parseInt(tag[1]);
+    const level = Number.parseInt(tag[1]);
     if (lastLevel > 0 && level > lastLevel + 1) {
       result.hierarchyValid = false;
     }
@@ -119,8 +131,11 @@ export interface LinksResult {
 
 export function extractLinks(html: string, baseUrl: string): LinksResult {
   const result: LinksResult = {
-    internal: 0, external: 0,
-    internalUrls: [], externalUrls: [], noText: [],
+    internal: 0,
+    external: 0,
+    internalUrls: [],
+    externalUrls: [],
+    noText: [],
   };
 
   const linkRegex = /<a[^>]*>([\s\S]*?)<\/a>/gi;
@@ -138,7 +153,13 @@ export function extractLinks(html: string, baseUrl: string): LinksResult {
     const text = stripTags(match[1]).trim();
     const href = extractAttr(tag, 'href');
 
-    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    if (
+      !href ||
+      href.startsWith('#') ||
+      href.startsWith('javascript:') ||
+      href.startsWith('mailto:') ||
+      href.startsWith('tel:')
+    ) {
       continue;
     }
 
@@ -215,8 +236,9 @@ export function extractCharset(html: string): string | null {
 }
 
 export function extractFavicon(html: string): string | null {
-  const match = html.match(/<link[^>]+rel=["'](?:icon|shortcut icon)["'][^>]+href=["']([^"']*)["']/i)
-    || html.match(/<link[^>]+href=["']([^"']*)["'][^>]+rel=["'](?:icon|shortcut icon)["']/i);
+  const match =
+    html.match(/<link[^>]+rel=["'](?:icon|shortcut icon)["'][^>]+href=["']([^"']*)["']/i) ||
+    html.match(/<link[^>]+href=["']([^"']*)["'][^>]+rel=["'](?:icon|shortcut icon)["']/i);
   return match ? match[1].trim() : null;
 }
 

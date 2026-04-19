@@ -1,4 +1,4 @@
-import type { HeadingsResult, ImagesResult, LinksResult, StructuredDataItem } from '../../utils/html-parser';
+import type { HeadingsResult, LinksResult, StructuredDataItem } from '../../utils/html-parser';
 
 export interface SEOData {
   title: { value: string | null; length: number; isOptimal: boolean };

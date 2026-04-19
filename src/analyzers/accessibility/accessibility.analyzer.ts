@@ -1,19 +1,36 @@
-import type {
-  IAnalyzer, AnalysisInput, AnalyzerResult, Finding, LighthouseAudit,
-} from '../base/analyzer.interface';
+import { extractImages, extractLanguage } from '../../utils/html-parser';
 import { scoreToGrade } from '../../utils/scoring';
-import { extractLanguage, extractImages } from '../../utils/html-parser';
+import type {
+  AnalysisInput,
+  AnalyzerResult,
+  Finding,
+  IAnalyzer,
+  LighthouseAudit,
+} from '../base/analyzer.interface';
 import type { AccessibilityData, AccessibilityViolation } from './accessibility.types';
 
 const LANDMARKS = ['main', 'nav', 'header', 'footer'];
 
 // Lighthouse a11y audit IDs that map to violations
 const VIOLATION_AUDITS = [
-  'color-contrast', 'image-alt', 'label', 'link-name', 'button-name',
-  'html-has-lang', 'html-lang-valid', 'meta-viewport', 'heading-order',
-  'duplicate-id-active', 'aria-allowed-attr', 'aria-hidden-body',
-  'aria-required-attr', 'aria-roles', 'aria-valid-attr-value',
-  'tabindex', 'td-headers-attr', 'th-has-data-cells',
+  'color-contrast',
+  'image-alt',
+  'label',
+  'link-name',
+  'button-name',
+  'html-has-lang',
+  'html-lang-valid',
+  'meta-viewport',
+  'heading-order',
+  'duplicate-id-active',
+  'aria-allowed-attr',
+  'aria-hidden-body',
+  'aria-required-attr',
+  'aria-roles',
+  'aria-valid-attr-value',
+  'tabindex',
+  'td-headers-attr',
+  'th-has-data-cells',
 ];
 
 export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
@@ -28,8 +45,10 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
     const lh = input.lighthouse;
     const { html } = input;
 
-    const lighthouseScore = lh?.categories?.accessibility?.score != null
-      ? Math.round(lh.categories.accessibility.score * 100) : 0;
+    const lighthouseScore =
+      lh?.categories?.accessibility?.score != null
+        ? Math.round(lh.categories.accessibility.score * 100)
+        : 0;
 
     // Extract violations from Lighthouse audits
     const violations: AccessibilityViolation[] = [];
@@ -57,21 +76,39 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
     const language = extractLanguage(html);
     const languageSet = !!language;
     if (!languageSet && !violations.some((v) => v.id === 'html-has-lang')) {
-      findings.push(this.f('a11y-missing-lang', 'Language', 'Missing language attribute',
-        'The <html> tag does not have a lang attribute.',
-        'Add lang="en" (or appropriate language) to the <html> tag.',
-        'critical', 'high', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-missing-lang',
+          'Language',
+          'Missing language attribute',
+          'The <html> tag does not have a lang attribute.',
+          'Add lang="en" (or appropriate language) to the <html> tag.',
+          'critical',
+          'high',
+          'quick-fix',
+        ),
+      );
     }
 
     // Images without alt (from HTML parsing, not just Lighthouse)
     const images = extractImages(html);
     const imagesWithoutAlt = images.withoutAlt;
     if (imagesWithoutAlt > 0 && !violations.some((v) => v.id === 'image-alt')) {
-      findings.push(this.f('a11y-images-no-alt', 'Images', `${imagesWithoutAlt} images missing alt text`,
-        `${imagesWithoutAlt} of ${images.total} images have no alt attribute.`,
-        'Add descriptive alt text to all images. Use alt="" for decorative images.',
-        'critical', 'high', 'moderate',
-        undefined, `${imagesWithoutAlt} missing`, 'All images with alt'));
+      findings.push(
+        this.f(
+          'a11y-images-no-alt',
+          'Images',
+          `${imagesWithoutAlt} images missing alt text`,
+          `${imagesWithoutAlt} of ${images.total} images have no alt attribute.`,
+          'Add descriptive alt text to all images. Use alt="" for decorative images.',
+          'critical',
+          'high',
+          'moderate',
+          undefined,
+          `${imagesWithoutAlt} missing`,
+          'All images with alt',
+        ),
+      );
     }
 
     // Landmarks
@@ -87,19 +124,25 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
     }
 
     if (landmarksMissing.length > 0) {
-      findings.push(this.f('a11y-missing-landmarks', 'Landmarks',
-        `Missing landmarks: ${landmarksMissing.join(', ')}`,
-        `Page is missing semantic landmarks: ${landmarksMissing.join(', ')}.`,
-        `Add ${landmarksMissing.map((l) => `<${l}>`).join(', ')} elements for better screen reader navigation.`,
-        'warning', 'medium', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-missing-landmarks',
+          'Landmarks',
+          `Missing landmarks: ${landmarksMissing.join(', ')}`,
+          `Page is missing semantic landmarks: ${landmarksMissing.join(', ')}.`,
+          `Add ${landmarksMissing.map((l) => `<${l}>`).join(', ')} elements for better screen reader navigation.`,
+          'warning',
+          'medium',
+          'quick-fix',
+        ),
+      );
     }
 
     // Forms without labels
-    const formInputs = (html.match(/<input[^>]*>/gi) || [])
-      .filter((tag) => {
-        const type = tag.match(/type=["']([^"']*)["']/i)?.[1] || 'text';
-        return !['hidden', 'submit', 'button', 'reset', 'image'].includes(type);
-      });
+    const formInputs = (html.match(/<input[^>]*>/gi) || []).filter((tag) => {
+      const type = tag.match(/type=["']([^"']*)["']/i)?.[1] || 'text';
+      return !['hidden', 'submit', 'button', 'reset', 'image'].includes(type);
+    });
     const inputsWithLabel = formInputs.filter((tag) => {
       const id = tag.match(/id=["']([^"']*)["']/i)?.[1];
       const ariaLabel = tag.match(/aria-label=["']([^"']*)["']/i)?.[1];
@@ -111,48 +154,77 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
     const formsWithoutLabels = formInputs.length - inputsWithLabel.length;
 
     if (formsWithoutLabels > 0 && !violations.some((v) => v.id === 'label')) {
-      findings.push(this.f('a11y-forms-no-labels', 'Forms',
-        `${formsWithoutLabels} form inputs without labels`,
-        `${formsWithoutLabels} input fields have no associated label, aria-label, or aria-labelledby.`,
-        'Add a <label for="id"> or aria-label attribute to every form input.',
-        'critical', 'high', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-forms-no-labels',
+          'Forms',
+          `${formsWithoutLabels} form inputs without labels`,
+          `${formsWithoutLabels} input fields have no associated label, aria-label, or aria-labelledby.`,
+          'Add a <label for="id"> or aria-label attribute to every form input.',
+          'critical',
+          'high',
+          'quick-fix',
+        ),
+      );
     }
 
     // Contrast issues count from Lighthouse
     const contrastAudit = lh?.audits?.['color-contrast'];
-    const contrastIssues = contrastAudit?.score === 0
-      ? (contrastAudit.details?.items?.length ?? 1) : 0;
+    const contrastIssues =
+      contrastAudit?.score === 0 ? (contrastAudit.details?.items?.length ?? 1) : 0;
 
     // Skip navigation
     const hasSkipNav = /skip[- ]?(to[- ]?)?(main|content|nav)/i.test(html);
     if (!hasSkipNav) {
-      findings.push(this.f('a11y-no-skip-nav', 'Navigation', 'No skip navigation link',
-        'No "skip to content" link found at the top of the page.',
-        'Add a visually hidden "Skip to main content" link as the first focusable element.',
-        'info', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-no-skip-nav',
+          'Navigation',
+          'No skip navigation link',
+          'No "skip to content" link found at the top of the page.',
+          'Add a visually hidden "Skip to main content" link as the first focusable element.',
+          'info',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     // Font size check
     const hasSmallFont = /<style[^>]*>[\s\S]*?font-size:\s*(1[0-5]|[0-9])px/i.test(html);
     if (hasSmallFont) {
-      findings.push(this.f('a11y-small-font', 'Typography', 'Small font size detected',
-        'CSS contains font-size declarations below 16px.',
-        'Use a minimum font size of 16px for body text for readability.',
-        'info', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-small-font',
+          'Typography',
+          'Small font size detected',
+          'CSS contains font-size declarations below 16px.',
+          'Use a minimum font size of 16px for body text for readability.',
+          'info',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     // No Lighthouse data
     if (!lh) {
-      findings.push(this.f('a11y-no-lighthouse', 'General', 'Lighthouse data unavailable',
-        'Accessibility analysis is limited without Lighthouse data.',
-        'Ensure PageSpeed Insights API is accessible.',
-        'info', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'a11y-no-lighthouse',
+          'General',
+          'Lighthouse data unavailable',
+          'Accessibility analysis is limited without Lighthouse data.',
+          'Ensure PageSpeed Insights API is accessible.',
+          'info',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     // Score: use Lighthouse if available, otherwise calculate from findings
-    const score = lighthouseScore > 0
-      ? lighthouseScore
-      : this.calculateScore(findings);
+    const score = lighthouseScore > 0 ? lighthouseScore : this.calculateScore(findings);
 
     const data: AccessibilityData = {
       lighthouseScore,
@@ -190,9 +262,8 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
   private auditToViolation(audit: LighthouseAudit): AccessibilityViolation {
     const items = audit.details?.items;
     const nodes = Array.isArray(items) ? items.length : 1;
-    const impact = audit.score === 0
-      ? (nodes > 5 ? 'critical' : nodes > 2 ? 'serious' : 'moderate')
-      : 'minor';
+    const impact =
+      audit.score === 0 ? (nodes > 5 ? 'critical' : nodes > 2 ? 'serious' : 'moderate') : 'minor';
 
     return {
       id: audit.id,
@@ -205,7 +276,10 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
 
   private violationToFinding(v: AccessibilityViolation): Finding {
     const severityMap: Record<string, Finding['severity']> = {
-      critical: 'critical', serious: 'critical', moderate: 'warning', minor: 'info',
+      critical: 'critical',
+      serious: 'critical',
+      moderate: 'warning',
+      minor: 'info',
     };
 
     return {
@@ -223,13 +297,31 @@ export class AccessibilityAnalyzer implements IAnalyzer<AccessibilityData> {
   }
 
   private f(
-    id: string, category: string, title: string, description: string, recommendation: string,
-    severity: Finding['severity'], impact: Finding['impact'], effort: Finding['effort'],
-    element?: string, value?: string, expected?: string,
+    id: string,
+    category: string,
+    title: string,
+    description: string,
+    recommendation: string,
+    severity: Finding['severity'],
+    impact: Finding['impact'],
+    effort: Finding['effort'],
+    element?: string,
+    value?: string,
+    expected?: string,
   ): Finding {
     return {
-      id, analyzer: this.name, severity, category, title, description,
-      recommendation, impact, effort, element, value, expected,
+      id,
+      analyzer: this.name,
+      severity,
+      category,
+      title,
+      description,
+      recommendation,
+      impact,
+      effort,
+      element,
+      value,
+      expected,
     };
   }
 }

@@ -1,23 +1,46 @@
-import type {
-  IAnalyzer, AnalysisInput, AnalyzerResult, Finding,
-} from '../base/analyzer.interface';
+import { extractFavicon, extractImages } from '../../utils/html-parser';
 import { scoreToGrade } from '../../utils/scoring';
-import { extractImages, extractFavicon } from '../../utils/html-parser';
+import type { AnalysisInput, AnalyzerResult, Finding, IAnalyzer } from '../base/analyzer.interface';
 import type { ContentData } from './content.types';
 
-const GENERIC_ALT = /^(image|photo|picture|img|pic|photo\d*|image\d*|img_?\d+|dsc_?\d+|screenshot)$/i;
+const GENERIC_ALT =
+  /^(image|photo|picture|img|pic|photo\d*|image\d*|img_?\d+|dsc_?\d+|screenshot)$/i;
 
 const CTA_PATTERNS = [
-  /buy\s+now/i, /sign\s+up/i, /get\s+started/i, /subscribe/i, /download/i,
-  /try\s+(it\s+)?free/i, /start\s+(your\s+)?trial/i, /contact\s+us/i,
-  /request\s+(a\s+)?demo/i, /learn\s+more/i, /book\s+(a\s+)?call/i,
-  /schedule/i, /register/i, /join/i, /apply/i, /order/i, /comprar/i,
-  /cadastr/i, /comecar/i, /assinar/i, /agendar/i, /fale\s+conosco/i,
+  /buy\s+now/i,
+  /sign\s+up/i,
+  /get\s+started/i,
+  /subscribe/i,
+  /download/i,
+  /try\s+(it\s+)?free/i,
+  /start\s+(your\s+)?trial/i,
+  /contact\s+us/i,
+  /request\s+(a\s+)?demo/i,
+  /learn\s+more/i,
+  /book\s+(a\s+)?call/i,
+  /schedule/i,
+  /register/i,
+  /join/i,
+  /apply/i,
+  /order/i,
+  /comprar/i,
+  /cadastr/i,
+  /comecar/i,
+  /assinar/i,
+  /agendar/i,
+  /fale\s+conosco/i,
 ];
 
 const SOCIAL_DOMAINS = [
-  'facebook.com', 'twitter.com', 'x.com', 'instagram.com', 'linkedin.com',
-  'youtube.com', 'tiktok.com', 'github.com', 'pinterest.com',
+  'facebook.com',
+  'twitter.com',
+  'x.com',
+  'instagram.com',
+  'linkedin.com',
+  'youtube.com',
+  'tiktok.com',
+  'github.com',
+  'pinterest.com',
 ];
 
 export class ContentAnalyzer implements IAnalyzer<ContentData> {
@@ -40,10 +63,12 @@ export class ContentAnalyzer implements IAnalyzer<ContentData> {
     const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const avgWordsPerSentence = sentences.length > 0 ? wordCount / sentences.length : 0;
     const avgSyllables = this.avgSyllablesPerWord(words);
-    const readabilityScore = Math.max(0, Math.min(100,
-      206.835 - 1.015 * avgWordsPerSentence - 84.6 * avgSyllables));
-    const readabilityLevel = readabilityScore >= 60 ? 'easy'
-      : readabilityScore >= 30 ? 'moderate' : 'difficult';
+    const readabilityScore = Math.max(
+      0,
+      Math.min(100, 206.835 - 1.015 * avgWordsPerSentence - 84.6 * avgSyllables),
+    );
+    const readabilityLevel =
+      readabilityScore >= 60 ? 'easy' : readabilityScore >= 30 ? 'moderate' : 'difficult';
 
     // Images
     const imagesRaw = extractImages(html);
@@ -71,71 +96,152 @@ export class ContentAnalyzer implements IAnalyzer<ContentData> {
 
     // Word count
     if (wordCount < 100) {
-      findings.push(this.f('content-low-word-count', 'Content', 'Very little content',
-        `Page has only ${wordCount} words.`, 'Add more meaningful content. Aim for at least 300 words on main pages.',
-        'warning', 'medium', 'moderate', undefined, `${wordCount}`, '300+'));
+      findings.push(
+        this.f(
+          'content-low-word-count',
+          'Content',
+          'Very little content',
+          `Page has only ${wordCount} words.`,
+          'Add more meaningful content. Aim for at least 300 words on main pages.',
+          'warning',
+          'medium',
+          'moderate',
+          undefined,
+          `${wordCount}`,
+          '300+',
+        ),
+      );
     } else if (wordCount < 300) {
-      findings.push(this.f('content-moderate-word-count', 'Content', 'Thin content',
-        `Page has ${wordCount} words, below the recommended 300.`,
-        'Consider expanding content with relevant information.',
-        'info', 'low', 'moderate', undefined, `${wordCount}`, '300+'));
+      findings.push(
+        this.f(
+          'content-moderate-word-count',
+          'Content',
+          'Thin content',
+          `Page has ${wordCount} words, below the recommended 300.`,
+          'Consider expanding content with relevant information.',
+          'info',
+          'low',
+          'moderate',
+          undefined,
+          `${wordCount}`,
+          '300+',
+        ),
+      );
     }
 
     // Readability
     if (readabilityLevel === 'difficult') {
-      findings.push(this.f('content-difficult-readability', 'Readability', 'Content is hard to read',
-        `Readability score is ${Math.round(readabilityScore)} (difficult).`,
-        'Use shorter sentences and simpler words. Aim for a score above 60.',
-        'warning', 'medium', 'moderate', undefined,
-        `${Math.round(readabilityScore)}`, '60+'));
+      findings.push(
+        this.f(
+          'content-difficult-readability',
+          'Readability',
+          'Content is hard to read',
+          `Readability score is ${Math.round(readabilityScore)} (difficult).`,
+          'Use shorter sentences and simpler words. Aim for a score above 60.',
+          'warning',
+          'medium',
+          'moderate',
+          undefined,
+          `${Math.round(readabilityScore)}`,
+          '60+',
+        ),
+      );
     }
 
     // Images without alt
     if (imagesRaw.withoutAlt > 0) {
-      findings.push(this.f('content-images-no-alt', 'Images', 'Images missing alt text',
-        `${imagesRaw.withoutAlt} of ${imagesRaw.total} images have no alt attribute.`,
-        'Add descriptive alt text to all images.',
-        'critical', 'high', 'moderate'));
+      findings.push(
+        this.f(
+          'content-images-no-alt',
+          'Images',
+          'Images missing alt text',
+          `${imagesRaw.withoutAlt} of ${imagesRaw.total} images have no alt attribute.`,
+          'Add descriptive alt text to all images.',
+          'critical',
+          'high',
+          'moderate',
+        ),
+      );
     }
 
     // Generic alt
     if (genericAltCount > 0) {
-      findings.push(this.f('content-images-generic-alt', 'Images', 'Images with generic alt text',
-        `${genericAltCount} images have generic alt text like "image" or "photo".`,
-        'Replace with descriptive alternatives.',
-        'warning', 'medium', 'quick-fix'));
+      findings.push(
+        this.f(
+          'content-images-generic-alt',
+          'Images',
+          'Images with generic alt text',
+          `${genericAltCount} images have generic alt text like "image" or "photo".`,
+          'Replace with descriptive alternatives.',
+          'warning',
+          'medium',
+          'quick-fix',
+        ),
+      );
     }
 
     // CTAs
     if (ctas.length === 0) {
-      findings.push(this.f('content-no-cta', 'CTAs', 'No call-to-action found',
-        'The page has no visible call-to-action buttons or links.',
-        'Add at least one clear CTA (e.g., "Get Started", "Contact Us").',
-        'warning', 'medium', 'quick-fix'));
+      findings.push(
+        this.f(
+          'content-no-cta',
+          'CTAs',
+          'No call-to-action found',
+          'The page has no visible call-to-action buttons or links.',
+          'Add at least one clear CTA (e.g., "Get Started", "Contact Us").',
+          'warning',
+          'medium',
+          'quick-fix',
+        ),
+      );
     }
 
     // Contact info
     if (!hasContactInfo) {
-      findings.push(this.f('content-no-contact', 'Contact', 'No contact information',
-        'No email, phone number, or contact form found.',
-        'Add contact information or a contact form.',
-        'info', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'content-no-contact',
+          'Contact',
+          'No contact information',
+          'No email, phone number, or contact form found.',
+          'Add contact information or a contact form.',
+          'info',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     // Social links
     if (!hasSocialLinks) {
-      findings.push(this.f('content-no-social', 'Social', 'No social media links',
-        'No links to social media profiles found.',
-        'Add links to relevant social media profiles.',
-        'info', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'content-no-social',
+          'Social',
+          'No social media links',
+          'No links to social media profiles found.',
+          'Add links to relevant social media profiles.',
+          'info',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     // Favicon
     if (!hasFavicon) {
-      findings.push(this.f('content-no-favicon', 'Branding', 'No favicon',
-        'No favicon found in the page.',
-        'Add <link rel="icon" href="/favicon.svg"> to the <head>.',
-        'warning', 'low', 'quick-fix'));
+      findings.push(
+        this.f(
+          'content-no-favicon',
+          'Branding',
+          'No favicon',
+          'No favicon found in the page.',
+          'Add <link rel="icon" href="/favicon.svg"> to the <head>.',
+          'warning',
+          'low',
+          'quick-fix',
+        ),
+      );
     }
 
     const score = this.calculateScore(findings);
@@ -228,13 +334,31 @@ export class ContentAnalyzer implements IAnalyzer<ContentData> {
   }
 
   private f(
-    id: string, category: string, title: string, description: string, recommendation: string,
-    severity: Finding['severity'], impact: Finding['impact'], effort: Finding['effort'],
-    element?: string, value?: string, expected?: string,
+    id: string,
+    category: string,
+    title: string,
+    description: string,
+    recommendation: string,
+    severity: Finding['severity'],
+    impact: Finding['impact'],
+    effort: Finding['effort'],
+    element?: string,
+    value?: string,
+    expected?: string,
   ): Finding {
     return {
-      id, analyzer: this.name, severity, category, title, description,
-      recommendation, impact, effort, element, value, expected,
+      id,
+      analyzer: this.name,
+      severity,
+      category,
+      title,
+      description,
+      recommendation,
+      impact,
+      effort,
+      element,
+      value,
+      expected,
     };
   }
 }

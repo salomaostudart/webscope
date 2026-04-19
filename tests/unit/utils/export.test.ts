@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { exportCSV, exportMarkdown } from '../../../src/utils/export';
+import { describe, expect, it } from 'vitest';
 import type { AuditResult } from '../../../src/analyzers/base/analyzer.interface';
+import { exportCSV, exportMarkdown } from '../../../src/utils/export';
 
 function createMockResult(): AuditResult {
   return {
@@ -14,25 +14,39 @@ function createMockResult(): AuditResult {
     ],
     allFindings: [
       {
-        id: 'seo-missing-title', analyzer: 'seo', severity: 'critical',
-        category: 'Meta Tags', title: 'Missing title tag',
+        id: 'seo-missing-title',
+        analyzer: 'seo',
+        severity: 'critical',
+        category: 'Meta Tags',
+        title: 'Missing title tag',
         description: 'The page does not have a <title> tag.',
         recommendation: 'Add a descriptive title tag.',
-        impact: 'high', effort: 'quick-fix',
+        impact: 'high',
+        effort: 'quick-fix',
       },
       {
-        id: 'perf-lcp-slow', analyzer: 'performance', severity: 'warning',
-        category: 'Core Web Vitals', title: 'LCP needs improvement',
-        description: 'LCP is 3.2s.', recommendation: 'Optimize images.',
-        impact: 'high', effort: 'moderate',
-        value: '3.2s', expected: '< 2.5s',
+        id: 'perf-lcp-slow',
+        analyzer: 'performance',
+        severity: 'warning',
+        category: 'Core Web Vitals',
+        title: 'LCP needs improvement',
+        description: 'LCP is 3.2s.',
+        recommendation: 'Optimize images.',
+        impact: 'high',
+        effort: 'moderate',
+        value: '3.2s',
+        expected: '< 2.5s',
       },
       {
-        id: 'sec-missing-hsts', analyzer: 'security', severity: 'info',
-        category: 'Headers', title: 'Consider HSTS preload',
+        id: 'sec-missing-hsts',
+        analyzer: 'security',
+        severity: 'info',
+        category: 'Headers',
+        title: 'Consider HSTS preload',
         description: 'HSTS does not include preload.',
         recommendation: 'Add preload to HSTS.',
-        impact: 'low', effort: 'quick-fix',
+        impact: 'low',
+        effort: 'quick-fix',
       },
     ],
     analyzedAt: '2026-04-14T15:30:00.000Z',

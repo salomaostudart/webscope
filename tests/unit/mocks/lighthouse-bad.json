@@ -3,16 +3,96 @@
     "performance": { "score": 0.32 },
     "accessibility": { "score": 0.55 },
     "seo": { "score": 0.45 },
-    "best-practices": { "score": 0.60 }
+    "best-practices": { "score": 0.6 }
   },
   "audits": {
-    "largest-contentful-paint": { "id": "largest-contentful-paint", "title": "Largest Contentful Paint", "description": "LCP marks the time at which the largest content element is rendered.", "score": 0.1, "scoreDisplayMode": "numeric", "numericValue": 5200, "numericUnit": "millisecond", "displayValue": "5.2 s" },
-    "interaction-to-next-paint": { "id": "interaction-to-next-paint", "title": "Interaction to Next Paint", "description": "INP assesses responsiveness.", "score": 0.15, "scoreDisplayMode": "numeric", "numericValue": 650, "numericUnit": "millisecond", "displayValue": "650 ms" },
-    "cumulative-layout-shift": { "id": "cumulative-layout-shift", "title": "Cumulative Layout Shift", "description": "CLS measures visual stability.", "score": 0.2, "scoreDisplayMode": "numeric", "numericValue": 0.35, "numericUnit": "unitless", "displayValue": "0.35" },
-    "first-contentful-paint": { "id": "first-contentful-paint", "title": "First Contentful Paint", "description": "FCP marks the time at which the first content is painted.", "score": 0.2, "scoreDisplayMode": "numeric", "numericValue": 3500, "numericUnit": "millisecond", "displayValue": "3.5 s" },
-    "speed-index": { "id": "speed-index", "title": "Speed Index", "description": "Speed Index shows how quickly the contents of a page are visibly populated.", "score": 0.15, "scoreDisplayMode": "numeric", "numericValue": 6200, "numericUnit": "millisecond", "displayValue": "6.2 s" },
-    "interactive": { "id": "interactive", "title": "Time to Interactive", "description": "TTI marks the time at which the page is fully interactive.", "score": 0.1, "scoreDisplayMode": "numeric", "numericValue": 8500, "numericUnit": "millisecond", "displayValue": "8.5 s" },
-    "total-blocking-time": { "id": "total-blocking-time", "title": "Total Blocking Time", "description": "TBT measures the total time that the main thread was blocked.", "score": 0.1, "scoreDisplayMode": "numeric", "numericValue": 850, "numericUnit": "millisecond", "displayValue": "850 ms" },
-    "resource-summary": { "id": "resource-summary", "title": "Resource Summary", "description": "Resource summary", "score": null, "scoreDisplayMode": "informative", "details": { "type": "table", "items": [{ "resourceType": "document", "requestCount": 1, "transferSize": 50000 }, { "resourceType": "stylesheet", "requestCount": 8, "transferSize": 200000 }, { "resourceType": "script", "requestCount": 25, "transferSize": 2500000 }, { "resourceType": "image", "requestCount": 40, "transferSize": 4000000 }, { "resourceType": "font", "requestCount": 6, "transferSize": 300000 }, { "resourceType": "other", "requestCount": 25, "transferSize": 100000 }] } }
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "description": "LCP marks the time at which the largest content element is rendered.",
+      "score": 0.1,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 5200,
+      "numericUnit": "millisecond",
+      "displayValue": "5.2 s"
+    },
+    "interaction-to-next-paint": {
+      "id": "interaction-to-next-paint",
+      "title": "Interaction to Next Paint",
+      "description": "INP assesses responsiveness.",
+      "score": 0.15,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 650,
+      "numericUnit": "millisecond",
+      "displayValue": "650 ms"
+    },
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift",
+      "description": "CLS measures visual stability.",
+      "score": 0.2,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 0.35,
+      "numericUnit": "unitless",
+      "displayValue": "0.35"
+    },
+    "first-contentful-paint": {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "description": "FCP marks the time at which the first content is painted.",
+      "score": 0.2,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 3500,
+      "numericUnit": "millisecond",
+      "displayValue": "3.5 s"
+    },
+    "speed-index": {
+      "id": "speed-index",
+      "title": "Speed Index",
+      "description": "Speed Index shows how quickly the contents of a page are visibly populated.",
+      "score": 0.15,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 6200,
+      "numericUnit": "millisecond",
+      "displayValue": "6.2 s"
+    },
+    "interactive": {
+      "id": "interactive",
+      "title": "Time to Interactive",
+      "description": "TTI marks the time at which the page is fully interactive.",
+      "score": 0.1,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 8500,
+      "numericUnit": "millisecond",
+      "displayValue": "8.5 s"
+    },
+    "total-blocking-time": {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "description": "TBT measures the total time that the main thread was blocked.",
+      "score": 0.1,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 850,
+      "numericUnit": "millisecond",
+      "displayValue": "850 ms"
+    },
+    "resource-summary": {
+      "id": "resource-summary",
+      "title": "Resource Summary",
+      "description": "Resource summary",
+      "score": null,
+      "scoreDisplayMode": "informative",
+      "details": {
+        "type": "table",
+        "items": [
+          { "resourceType": "document", "requestCount": 1, "transferSize": 50000 },
+          { "resourceType": "stylesheet", "requestCount": 8, "transferSize": 200000 },
+          { "resourceType": "script", "requestCount": 25, "transferSize": 2500000 },
+          { "resourceType": "image", "requestCount": 40, "transferSize": 4000000 },
+          { "resourceType": "font", "requestCount": 6, "transferSize": 300000 },
+          { "resourceType": "other", "requestCount": 25, "transferSize": 100000 }
+        ]
+      }
+    }
   }
 }

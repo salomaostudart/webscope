@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { BrandingAnalyzer } from '../../../src/analyzers/branding/branding.analyzer';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import type { AnalysisInput } from '../../../src/analyzers/base/analyzer.interface';
+import { BrandingAnalyzer } from '../../../src/analyzers/branding/branding.analyzer';
 
 const goodHtml = readFileSync(join(__dirname, '../mocks/html-good.html'), 'utf-8');
 const badHtml = readFileSync(join(__dirname, '../mocks/html-bad.html'), 'utf-8');
@@ -87,13 +87,15 @@ describe('BrandingAnalyzer', () => {
 
   describe('color extraction', () => {
     it('should extract hex colors', async () => {
-      const html = '<html><body><style>body { color: #ff5500; background: #818cf8; }</style></body></html>';
+      const html =
+        '<html><body><style>body { color: #ff5500; background: #818cf8; }</style></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.colors.totalUnique).toBeGreaterThanOrEqual(2);
     });
 
     it('should filter grayscale colors', async () => {
-      const html = '<html><body><style>body { color: #333333; background: #ffffff; border: 1px solid #cccccc; }</style></body></html>';
+      const html =
+        '<html><body><style>body { color: #333333; background: #ffffff; border: 1px solid #cccccc; }</style></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       // Grayscale colors should be filtered out
       expect(result.data.colors.totalUnique).toBe(0);
@@ -102,7 +104,8 @@ describe('BrandingAnalyzer', () => {
 
   describe('font extraction', () => {
     it('should detect Google Fonts', async () => {
-      const html = '<html><head><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet"></head><body></body></html>';
+      const html =
+        '<html><head><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet"></head><body></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.fonts.families.some((f) => f.name === 'Oswald')).toBe(true);
       expect(result.data.fonts.families.some((f) => f.name === 'Inter')).toBe(true);
@@ -112,14 +115,16 @@ describe('BrandingAnalyzer', () => {
 
   describe('logo detection', () => {
     it('should detect img with logo in src', async () => {
-      const html = '<html><body><header><img src="/images/logo.png" alt="Company"></header><main></main></body></html>';
+      const html =
+        '<html><body><header><img src="/images/logo.png" alt="Company"></header><main></main></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.logo.found).toBe(true);
       expect(result.data.logo.inHeader).toBe(true);
     });
 
     it('should detect SVG in header as logo', async () => {
-      const html = '<html><body><header><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></header><main></main></body></html>';
+      const html =
+        '<html><body><header><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></header><main></main></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.logo.found).toBe(true);
     });
@@ -127,7 +132,8 @@ describe('BrandingAnalyzer', () => {
 
   describe('manifest', () => {
     it('should detect manifest link', async () => {
-      const html = '<html><head><link rel="manifest" href="/manifest.json"></head><body></body></html>';
+      const html =
+        '<html><head><link rel="manifest" href="/manifest.json"></head><body></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.manifest.found).toBe(true);
     });
@@ -141,7 +147,8 @@ describe('BrandingAnalyzer', () => {
 
   describe('theme color', () => {
     it('should detect theme-color meta', async () => {
-      const html = '<html><head><meta name="theme-color" content="#818cf8"></head><body></body></html>';
+      const html =
+        '<html><head><meta name="theme-color" content="#818cf8"></head><body></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       expect(result.data.themeColor).toBe('#818cf8');
     });

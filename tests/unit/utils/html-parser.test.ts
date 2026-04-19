@@ -1,10 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import {
-  extractTitle, extractMetaDescription, extractViewport, extractCanonical,
-  extractLanguage, extractHeadings, extractImages, extractLinks,
-  extractStructuredData, extractOpenGraph, extractCharset, extractFavicon,
+  extractCanonical,
+  extractCharset,
+  extractFavicon,
+  extractHeadings,
+  extractImages,
+  extractLanguage,
+  extractLinks,
+  extractMetaDescription,
+  extractOpenGraph,
+  extractStructuredData,
+  extractTitle,
+  extractViewport,
 } from '../../../src/utils/html-parser';
 
 const goodHtml = readFileSync(join(__dirname, '../mocks/html-good.html'), 'utf-8');

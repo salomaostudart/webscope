@@ -26,9 +26,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   // Check access cookie
   const cookie = parseCookies(request.headers.get('Cookie') || '');
-  const token = cookie['ws_access'];
+  const token = cookie.ws_access;
 
-  if (token && await isValidToken(token, env.ACCESS_CODE)) {
+  if (token && (await isValidToken(token, env.ACCESS_CODE))) {
     // Authenticated — serve the actual page
     return next();
   }
@@ -44,7 +44,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 };
 
 async function generateToken(code: string): Promise<string> {
-  const data = new TextEncoder().encode(code + '-webscope-access');
+  const data = new TextEncoder().encode(`${code}-webscope-access`);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, '0'))

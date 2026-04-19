@@ -5,8 +5,8 @@
 import type { AuditResult } from '../analyzers/base/analyzer.interface';
 import type { AISuggestions } from './ai';
 
-const WORKER_URL = import.meta.env?.PUBLIC_WORKER_URL
-  || 'https://webscope-api.salomaomstudart.workers.dev';
+const WORKER_URL =
+  import.meta.env?.PUBLIC_WORKER_URL || 'https://webscope-api.salomaomstudart.workers.dev';
 
 export interface SavedAudit {
   id: string;
@@ -57,8 +57,22 @@ export async function getAudit(id: string): Promise<any | null> {
 }
 
 export interface AuditComparison {
-  audit1: { id: string; url: string; score: number; grade: string; date: string; scores: Record<string, number> };
-  audit2: { id: string; url: string; score: number; grade: string; date: string; scores: Record<string, number> };
+  audit1: {
+    id: string;
+    url: string;
+    score: number;
+    grade: string;
+    date: string;
+    scores: Record<string, number>;
+  };
+  audit2: {
+    id: string;
+    url: string;
+    score: number;
+    grade: string;
+    date: string;
+    scores: Record<string, number>;
+  };
   delta: { overall: number; categories: Record<string, number> };
   improved: boolean;
 }

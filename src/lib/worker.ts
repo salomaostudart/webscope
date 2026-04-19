@@ -15,8 +15,8 @@ export interface WorkerError {
   error: string;
 }
 
-const WORKER_URL = import.meta.env?.PUBLIC_WORKER_URL
-  || 'https://webscope-api.salomaomstudart.workers.dev';
+const WORKER_URL =
+  import.meta.env?.PUBLIC_WORKER_URL || 'https://webscope-api.salomaomstudart.workers.dev';
 
 export async function fetchViaWorker(targetUrl: string): Promise<WorkerResponse> {
   const params = new URLSearchParams({ url: targetUrl });

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { isValidUrl, normalizeUrl, extractDomain } from '../../src/utils/url-validation';
+import { describe, expect, it } from 'vitest';
+import { extractDomain, isValidUrl, normalizeUrl } from '../../src/utils/url-validation';
 
 describe('isValidUrl', () => {
   it('should accept valid https URL', () => {

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    ":prImmediately",
+    ":timezone(America/Sao_Paulo)"
+  ],
+  "schedule": ["after 9am and before 6pm on monday"],
+  "labels": ["dependencies"],
+  "assignees": ["salomaostudart"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "automerge": false,
+      "groupName": "patch updates"
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "groupName": "minor updates"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "labels": ["dependencies", "major-update"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchPackagePatterns": ["^@cloudflare/", "wrangler"],
+      "groupName": "cloudflare deps",
+      "schedule": ["after 9am on monday"]
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": false,
+      "groupName": "dev deps (minor/patch)"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": ["salomaostudart"],
+    "automerge": false
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["after 9am on monday"],
+    "automerge": false
+  }
+}

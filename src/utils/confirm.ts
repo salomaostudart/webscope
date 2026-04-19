@@ -13,7 +13,10 @@ export interface ConfirmOptions {
 
 export function confirmDialog(opts: ConfirmOptions): Promise<boolean> {
   return new Promise((resolve) => {
-    if (typeof document === 'undefined') { resolve(false); return; }
+    if (typeof document === 'undefined') {
+      resolve(false);
+      return;
+    }
 
     const overlay = document.getElementById('confirm-dialog');
     const titleEl = document.getElementById('confirm-title');
