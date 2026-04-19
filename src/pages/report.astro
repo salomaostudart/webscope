@@ -355,7 +355,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                   setTimeout(() => { shareBtn.textContent = 'Share'; }, 2000);
                 });
               });
-              actionsEl.prepend(shareBtn);
+              actionsEl.insertBefore(shareBtn, actionsEl.firstChild);
             }
           }
         });

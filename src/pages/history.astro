@@ -7,7 +7,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <header class="history-header">
       <h1>Audit History</h1>
       <div class="history-actions">
-        <button type="button" class="clear-btn" id="clear-btn" title="Clear all audit history">Clear all</button>
         <a href="/" class="new-audit-link">Run new audit</a>
       </div>
     </header>
@@ -58,24 +57,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin-bottom: var(--space-4);
   }
   .history-note strong { color: var(--text-secondary); }
-
-  .clear-btn {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--text-muted);
-    background: transparent;
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    padding: var(--space-2) var(--space-4);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-  }
-  .clear-btn:hover {
-    color: var(--accent-danger);
-    border-color: var(--accent-danger);
-    background: rgba(239, 68, 68, 0.08);
-  }
 
   .new-audit-link {
     font-size: var(--text-sm);
@@ -520,9 +501,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </style>
 
 <script>
-  import { listAudits, compareAudits, clearAllAudits } from '../lib/db';
-  import { confirmDialog } from '../utils/confirm';
-  import { showToast } from '../utils/toast';
+  import { listAudits, compareAudits } from '../lib/db';
   import type { AuditSummary, AuditComparison } from '../lib/db';
   import { escapeHtml } from '../utils/sanitize';
 
@@ -737,6 +716,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   async function loadAudits(): Promise<void> {
+    if (!container) return;
     try {
       const audits = await listAudits();
       if (audits.length === 0) {
@@ -751,35 +731,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
   }
 
-  // Clear all audits handler
-  document.getElementById('clear-btn')?.addEventListener('click', async () => {
-    const confirmed = await confirmDialog({
-      title: 'Clear all history?',
-      message: 'This will remove every saved audit for all users. This cannot be undone.',
-      confirmText: 'Clear all',
-      cancelText: 'Cancel',
-      danger: true,
-    });
-    if (!confirmed) return;
-
-    const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-    if (clearBtn) {
-      clearBtn.disabled = true;
-      clearBtn.textContent = 'Clearing...';
-    }
-    const ok = await clearAllAudits();
-    if (ok) {
-      selected.clear();
-      await loadAudits();
-      showToast('History cleared', 'success');
-    } else {
-      showToast('Failed to clear history. Try again.', 'error');
-    }
-    if (clearBtn) {
-      clearBtn.disabled = false;
-      clearBtn.textContent = 'Clear all';
-    }
-  });
 
   await loadAudits();
 </script>

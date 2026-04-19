@@ -263,7 +263,7 @@
   const overlay = document.getElementById('feedback-overlay')!;
   const closeBtn = document.getElementById('feedback-close')!;
   const form = document.getElementById('feedback-form') as HTMLFormElement;
-  const typeSelect = document.getElementById('fb-type') as HTMLSelectElement;
+  const typeSelect = document.getElementById('fb-type') as unknown as HTMLSelectElement;
   const descInput = document.getElementById('fb-description') as HTMLTextAreaElement;
   const captureBtn = document.getElementById('fb-capture-btn')!;
   const screenshotArea = document.getElementById('fb-screenshot-area')!;
