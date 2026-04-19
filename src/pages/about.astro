@@ -2,12 +2,42 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const categories = [
-  { name: 'Performance', weight: 20, description: 'Core Web Vitals (LCP, INP, CLS), page load speed, resource optimization, compression, image formats.' },
-  { name: 'SEO', weight: 25, description: 'Title and meta tags, heading hierarchy, alt text, structured data (JSON-LD), Open Graph, canonical URLs, crawlability.' },
-  { name: 'Accessibility', weight: 15, description: 'WCAG 2.1 AA compliance, color contrast, ARIA roles, form labels, landmarks, keyboard navigation, skip links.' },
-  { name: 'Content', weight: 15, description: 'Word count, readability score (Flesch-Kincaid), CTAs, broken links, contact information, social links, favicon.' },
-  { name: 'Branding', weight: 10, description: 'Color palette consistency, font families, logo presence, favicon, Open Graph image, PWA manifest, theme color.' },
-  { name: 'Security', weight: 15, description: 'HTTPS, HSTS, Content Security Policy, X-Frame-Options, mixed content, server header leakage, SRI, form security.' },
+  {
+    name: 'Performance',
+    weight: 20,
+    description:
+      'Core Web Vitals (LCP, INP, CLS), page load speed, resource optimization, compression, image formats.',
+  },
+  {
+    name: 'SEO',
+    weight: 25,
+    description:
+      'Title and meta tags, heading hierarchy, alt text, structured data (JSON-LD), Open Graph, canonical URLs, crawlability.',
+  },
+  {
+    name: 'Accessibility',
+    weight: 15,
+    description:
+      'WCAG 2.1 AA compliance, color contrast, ARIA roles, form labels, landmarks, keyboard navigation, skip links.',
+  },
+  {
+    name: 'Content',
+    weight: 15,
+    description:
+      'Word count, readability score (Flesch-Kincaid), CTAs, broken links, contact information, social links, favicon.',
+  },
+  {
+    name: 'Branding',
+    weight: 10,
+    description:
+      'Color palette consistency, font families, logo presence, favicon, Open Graph image, PWA manifest, theme color.',
+  },
+  {
+    name: 'Security',
+    weight: 15,
+    description:
+      'HTTPS, HSTS, Content Security Policy, X-Frame-Options, mixed content, server header leakage, SRI, form security.',
+  },
 ];
 
 const grades = [
@@ -23,10 +53,26 @@ const stack = [
   { name: 'TypeScript', role: 'Type safety', url: 'https://www.typescriptlang.org' },
   { name: 'Apache ECharts', role: 'Charts and visualizations', url: 'https://echarts.apache.org' },
   { name: 'Cloudflare Pages', role: 'Hosting and CDN', url: 'https://pages.cloudflare.com' },
-  { name: 'Cloudflare Workers', role: 'Proxy API (server-side fetch)', url: 'https://workers.cloudflare.com' },
-  { name: 'Cloudflare D1', role: 'Database (planned)', url: 'https://developers.cloudflare.com/d1/' },
-  { name: 'Cloudflare Workers AI', role: 'AI suggestions (planned)', url: 'https://developers.cloudflare.com/workers-ai/' },
-  { name: 'PageSpeed Insights', role: 'Lighthouse data (Google)', url: 'https://developers.google.com/speed/docs/insights/v5/get-started' },
+  {
+    name: 'Cloudflare Workers',
+    role: 'Proxy API (server-side fetch)',
+    url: 'https://workers.cloudflare.com',
+  },
+  {
+    name: 'Cloudflare D1',
+    role: 'Database (planned)',
+    url: 'https://developers.cloudflare.com/d1/',
+  },
+  {
+    name: 'Cloudflare Workers AI',
+    role: 'AI suggestions (planned)',
+    url: 'https://developers.cloudflare.com/workers-ai/',
+  },
+  {
+    name: 'PageSpeed Insights',
+    role: 'Lighthouse data (Google)',
+    url: 'https://developers.google.com/speed/docs/insights/v5/get-started',
+  },
 ];
 ---
 

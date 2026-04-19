@@ -18,8 +18,8 @@ export interface AISuggestions {
   quickWins: QuickWin[];
 }
 
-const WORKER_URL = import.meta.env?.PUBLIC_WORKER_URL
-  || 'https://webscope-api.salomaomstudart.workers.dev';
+const WORKER_URL =
+  import.meta.env?.PUBLIC_WORKER_URL || 'https://webscope-api.salomaomstudart.workers.dev';
 
 export async function fetchAISuggestions(result: AuditResult): Promise<AISuggestions | null> {
   try {
@@ -43,7 +43,7 @@ export async function fetchAISuggestions(result: AuditResult): Promise<AISuggest
 
     if (!response.ok) return null;
 
-    const data = await response.json() as AISuggestions;
+    const data = (await response.json()) as AISuggestions;
 
     if (!data.summary && (!data.quickWins || data.quickWins.length === 0)) {
       return null;

@@ -19,8 +19,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "eslint src/",
-    "format": "prettier --write src/ tests/",
+    "lint": "biome check src/ worker/src/",
+    "format": "biome format --write src/ worker/src/ tests/",
     "type-check": "astro check",
     "ci": "astro check && vitest run && astro build",
     "deploy": "npm run ci && npx wrangler pages deploy dist --project-name webscope --branch main"
@@ -33,14 +33,10 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
     "@axe-core/playwright": "^4.11.1",
-    "@eslint/js": "^10.0.1",
+    "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.59.1",
-    "eslint": "^10.2.0",
-    "eslint-plugin-astro": "^1.7.0",
-    "prettier": "^3.8.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.58.1",
     "vitest": "^4.1.4"
   }
 }

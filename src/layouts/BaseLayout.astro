@@ -1,10 +1,10 @@
 ---
 import Sidebar from '../components/layout/Sidebar.astro';
 import ThemeToggle from '../components/layout/ThemeToggle.astro';
-import FeedbackButton from '../components/ui/FeedbackButton.astro';
 import CommandPalette from '../components/ui/CommandPalette.astro';
-import Toast from '../components/ui/Toast.astro';
 import ConfirmDialog from '../components/ui/ConfirmDialog.astro';
+import FeedbackButton from '../components/ui/FeedbackButton.astro';
+import Toast from '../components/ui/Toast.astro';
 
 interface Props {
   title: string;
@@ -12,7 +12,11 @@ interface Props {
   fullWidth?: boolean;
 }
 
-const { title, description = 'Analyze any website for performance, SEO, accessibility, content, branding, and security.', fullWidth = false } = Astro.props;
+const {
+  title,
+  description = 'Analyze any website for performance, SEO, accessibility, content, branding, and security.',
+  fullWidth = false,
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 

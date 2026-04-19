@@ -3,17 +3,17 @@
  * Runs entirely in the browser (client-side).
  */
 
-import { fetchViaWorker } from './worker';
-import { fetchLighthouse } from './psi';
+import type { AnalysisInput, AuditResult } from '../analyzers/base/analyzer.interface';
 import { runFullAudit } from '../analyzers/registry';
-import type { AuditResult, AnalysisInput } from '../analyzers/base/analyzer.interface';
+import { fetchLighthouse } from './psi';
+import { fetchViaWorker } from './worker';
 
 export type ScanPhase =
-  | 'fetching'      // Fetching page via Worker proxy
-  | 'lighthouse'    // Running Lighthouse via PSI API
-  | 'analyzing'     // Running 6 analyzers
-  | 'complete'      // Done
-  | 'error';        // Failed
+  | 'fetching' // Fetching page via Worker proxy
+  | 'lighthouse' // Running Lighthouse via PSI API
+  | 'analyzing' // Running 6 analyzers
+  | 'complete' // Done
+  | 'error'; // Failed
 
 export interface ScanProgress {
   phase: ScanPhase;

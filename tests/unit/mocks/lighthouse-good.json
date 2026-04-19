@@ -6,13 +6,93 @@
     "best-practices": { "score": 0.96 }
   },
   "audits": {
-    "largest-contentful-paint": { "id": "largest-contentful-paint", "title": "Largest Contentful Paint", "description": "LCP marks the time at which the largest content element is rendered.", "score": 0.96, "scoreDisplayMode": "numeric", "numericValue": 1200, "numericUnit": "millisecond", "displayValue": "1.2 s" },
-    "interaction-to-next-paint": { "id": "interaction-to-next-paint", "title": "Interaction to Next Paint", "description": "INP assesses responsiveness.", "score": 0.95, "scoreDisplayMode": "numeric", "numericValue": 120, "numericUnit": "millisecond", "displayValue": "120 ms" },
-    "cumulative-layout-shift": { "id": "cumulative-layout-shift", "title": "Cumulative Layout Shift", "description": "CLS measures visual stability.", "score": 0.98, "scoreDisplayMode": "numeric", "numericValue": 0.02, "numericUnit": "unitless", "displayValue": "0.02" },
-    "first-contentful-paint": { "id": "first-contentful-paint", "title": "First Contentful Paint", "description": "FCP marks the time at which the first content is painted.", "score": 0.95, "scoreDisplayMode": "numeric", "numericValue": 800, "numericUnit": "millisecond", "displayValue": "0.8 s" },
-    "speed-index": { "id": "speed-index", "title": "Speed Index", "description": "Speed Index shows how quickly the contents of a page are visibly populated.", "score": 0.92, "scoreDisplayMode": "numeric", "numericValue": 1500, "numericUnit": "millisecond", "displayValue": "1.5 s" },
-    "interactive": { "id": "interactive", "title": "Time to Interactive", "description": "TTI marks the time at which the page is fully interactive.", "score": 0.93, "scoreDisplayMode": "numeric", "numericValue": 2000, "numericUnit": "millisecond", "displayValue": "2.0 s" },
-    "total-blocking-time": { "id": "total-blocking-time", "title": "Total Blocking Time", "description": "TBT measures the total time that the main thread was blocked.", "score": 0.95, "scoreDisplayMode": "numeric", "numericValue": 100, "numericUnit": "millisecond", "displayValue": "100 ms" },
-    "resource-summary": { "id": "resource-summary", "title": "Resource Summary", "description": "Resource summary", "score": null, "scoreDisplayMode": "informative", "details": { "type": "table", "items": [{ "resourceType": "document", "requestCount": 1, "transferSize": 15000 }, { "resourceType": "stylesheet", "requestCount": 2, "transferSize": 25000 }, { "resourceType": "script", "requestCount": 3, "transferSize": 80000 }, { "resourceType": "image", "requestCount": 5, "transferSize": 120000 }, { "resourceType": "font", "requestCount": 2, "transferSize": 40000 }, { "resourceType": "other", "requestCount": 2, "transferSize": 5000 }] } }
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "description": "LCP marks the time at which the largest content element is rendered.",
+      "score": 0.96,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 1200,
+      "numericUnit": "millisecond",
+      "displayValue": "1.2 s"
+    },
+    "interaction-to-next-paint": {
+      "id": "interaction-to-next-paint",
+      "title": "Interaction to Next Paint",
+      "description": "INP assesses responsiveness.",
+      "score": 0.95,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 120,
+      "numericUnit": "millisecond",
+      "displayValue": "120 ms"
+    },
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift",
+      "description": "CLS measures visual stability.",
+      "score": 0.98,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 0.02,
+      "numericUnit": "unitless",
+      "displayValue": "0.02"
+    },
+    "first-contentful-paint": {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "description": "FCP marks the time at which the first content is painted.",
+      "score": 0.95,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 800,
+      "numericUnit": "millisecond",
+      "displayValue": "0.8 s"
+    },
+    "speed-index": {
+      "id": "speed-index",
+      "title": "Speed Index",
+      "description": "Speed Index shows how quickly the contents of a page are visibly populated.",
+      "score": 0.92,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 1500,
+      "numericUnit": "millisecond",
+      "displayValue": "1.5 s"
+    },
+    "interactive": {
+      "id": "interactive",
+      "title": "Time to Interactive",
+      "description": "TTI marks the time at which the page is fully interactive.",
+      "score": 0.93,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 2000,
+      "numericUnit": "millisecond",
+      "displayValue": "2.0 s"
+    },
+    "total-blocking-time": {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "description": "TBT measures the total time that the main thread was blocked.",
+      "score": 0.95,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 100,
+      "numericUnit": "millisecond",
+      "displayValue": "100 ms"
+    },
+    "resource-summary": {
+      "id": "resource-summary",
+      "title": "Resource Summary",
+      "description": "Resource summary",
+      "score": null,
+      "scoreDisplayMode": "informative",
+      "details": {
+        "type": "table",
+        "items": [
+          { "resourceType": "document", "requestCount": 1, "transferSize": 15000 },
+          { "resourceType": "stylesheet", "requestCount": 2, "transferSize": 25000 },
+          { "resourceType": "script", "requestCount": 3, "transferSize": 80000 },
+          { "resourceType": "image", "requestCount": 5, "transferSize": 120000 },
+          { "resourceType": "font", "requestCount": 2, "transferSize": 40000 },
+          { "resourceType": "other", "requestCount": 2, "transferSize": 5000 }
+        ]
+      }
+    }
   }
 }

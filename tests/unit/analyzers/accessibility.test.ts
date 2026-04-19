@@ -1,10 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { AccessibilityAnalyzer } from '../../../src/analyzers/accessibility/accessibility.analyzer';
 import type { AnalysisInput } from '../../../src/analyzers/base/analyzer.interface';
 import lighthouseGood from '../mocks/lighthouse-good.json';
-import lighthouseBad from '../mocks/lighthouse-bad.json';
 
 const goodHtml = readFileSync(join(__dirname, '../mocks/html-good.html'), 'utf-8');
 const badHtml = readFileSync(join(__dirname, '../mocks/html-bad.html'), 'utf-8');
@@ -126,7 +125,10 @@ describe('AccessibilityAnalyzer', () => {
     });
 
     it('should not flag when skip nav present', async () => {
-      const htmlWithSkip = goodHtml.replace('<nav>', '<a href="#main" class="sr-only">Skip to main content</a><nav>');
+      const htmlWithSkip = goodHtml.replace(
+        '<nav>',
+        '<a href="#main" class="sr-only">Skip to main content</a><nav>',
+      );
       const input = createInput({ html: htmlWithSkip });
       const result = await analyzer.analyze(input);
       const f = result.findings.find((f) => f.id === 'a11y-no-skip-nav');

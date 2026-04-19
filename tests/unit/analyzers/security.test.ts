@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { SecurityAnalyzer } from '../../../src/analyzers/security/security.analyzer';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import type { AnalysisInput } from '../../../src/analyzers/base/analyzer.interface';
+import { SecurityAnalyzer } from '../../../src/analyzers/security/security.analyzer';
 
 const goodHtml = readFileSync(join(__dirname, '../mocks/html-good.html'), 'utf-8');
 const badHtml = readFileSync(join(__dirname, '../mocks/html-bad.html'), 'utf-8');
@@ -17,7 +17,7 @@ const goodHeaders: Record<string, string> = {
 };
 
 const badHeaders: Record<string, string> = {
-  'server': 'Apache/2.4.51 (Ubuntu)',
+  server: 'Apache/2.4.51 (Ubuntu)',
   'x-powered-by': 'Express 4.18.2',
 };
 
@@ -126,7 +126,9 @@ describe('SecurityAnalyzer', () => {
     });
 
     it('should not flag on HTTP page', async () => {
-      const result = await analyzer.analyze(createInput({ url: 'http://example.com', html: badHtml }));
+      const result = await analyzer.analyze(
+        createInput({ url: 'http://example.com', html: badHtml }),
+      );
       // Mixed content only applies to HTTPS pages
       expect(result.data.mixedContent.found).toBe(false);
     });
@@ -156,7 +158,8 @@ describe('SecurityAnalyzer', () => {
 
   describe('insecure forms', () => {
     it('should flag form with HTTP action', async () => {
-      const html = '<html><body><form action="http://evil.com/submit"><input type="text"></form></body></html>';
+      const html =
+        '<html><body><form action="http://evil.com/submit"><input type="text"></form></body></html>';
       const result = await analyzer.analyze(createInput({ html }));
       const f = result.findings.find((f) => f.id === 'sec-insecure-form');
       expect(f).toBeDefined();

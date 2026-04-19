@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { PerformanceAnalyzer } from '../../../src/analyzers/performance/performance.analyzer';
+import { describe, expect, it } from 'vitest';
 import type { AnalysisInput } from '../../../src/analyzers/base/analyzer.interface';
-import lighthouseGood from '../mocks/lighthouse-good.json';
+import { PerformanceAnalyzer } from '../../../src/analyzers/performance/performance.analyzer';
 import lighthouseBad from '../mocks/lighthouse-bad.json';
+import lighthouseGood from '../mocks/lighthouse-good.json';
 
 function createInput(overrides: Partial<AnalysisInput> = {}): AnalysisInput {
   return {

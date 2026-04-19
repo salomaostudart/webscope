@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { scoreToGrade, sortBySeverity } from '../../src/utils/scoring';
 
 describe('scoreToGrade', () => {
@@ -47,10 +47,7 @@ describe('sortBySeverity', () => {
   });
 
   it('should not mutate original array', () => {
-    const findings = [
-      { severity: 'pass' as const },
-      { severity: 'critical' as const },
-    ];
+    const findings = [{ severity: 'pass' as const }, { severity: 'critical' as const }];
     const original = [...findings];
     sortBySeverity(findings);
     expect(findings).toEqual(original);

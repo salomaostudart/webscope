@@ -65,9 +65,9 @@
   --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.15);
 
   /* Typography — fluid with clamp() */
-  --font-heading: 'Oswald', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-heading: "Oswald", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
   --text-xs: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
   --text-sm: clamp(0.8125rem, 0.775rem + 0.15vw, 0.875rem);
@@ -95,10 +95,10 @@
 
 /* Light mode tokens — increased contrast between surfaces */
 :root[data-theme="light"] {
-  --surface-0: #e2e8f0;   /* page bg — clearly tinted */
-  --surface-1: #ffffff;   /* sidebar/topbar */
-  --surface-2: #f8fafc;   /* content cards */
-  --surface-3: #eef2f7;   /* nested/elevated */
+  --surface-0: #e2e8f0; /* page bg — clearly tinted */
+  --surface-1: #ffffff; /* sidebar/topbar */
+  --surface-2: #f8fafc; /* content cards */
+  --surface-3: #eef2f7; /* nested/elevated */
   --surface-4: #d8dee8;
 
   --accent-primary: #4338ca;
@@ -122,7 +122,7 @@
   --text-muted: #64748b;
   --text-inverse: #f8fafc;
 
-  --border-default: #cbd5e1;   /* stronger borders for cards */
+  --border-default: #cbd5e1; /* stronger borders for cards */
   --border-hover: #94a3b8;
   --border-focus: #4338ca;
 
@@ -139,7 +139,11 @@
 }
 
 /* Touch targets (WCAG 2.5.8) — 44px minimum */
-button, [role="button"], input, select, textarea {
+button,
+[role="button"],
+input,
+select,
+textarea {
   min-height: 44px;
   min-width: 44px;
 }

@@ -14,6 +14,7 @@ Scores 0-100, findings priorizados, sugestoes de IA.
 - **Charts:** Apache ECharts 6 (radar, gauge, bar)
 - **Validacao:** Zod 4 (schema validation nos analyzers)
 - **Testes:** Vitest (unit) + Playwright (E2E + a11y)
+- **Linter/Formatter:** Biome 1.9 (substitui ESLint + Prettier)
 - **Design:** Oswald + Inter + JetBrains Mono + CSS tokens
 - **Deploy:** Cloudflare Pages (webscope.sal.dev.br)
 - **Proxy:** Cloudflare Worker (webscope-api)
@@ -35,7 +36,8 @@ npm run build      # Build estatico
 npm run test       # Unit tests (Vitest)
 npm run test:e2e   # E2E (Playwright)
 npm run type-check # TypeScript check (astro check)
-npm run lint       # ESLint (src/)
+npm run lint       # Biome check (src/ + worker/src/)
+npm run format     # Biome format --write
 npm run ci         # type-check + test + build
 npm run deploy     # CI + deploy CF Pages
 ```
@@ -65,6 +67,16 @@ cd worker && npm run deploy # Deploy worker
 - Acessibilidade WCAG 2.1 AA obrigatoria
 - Worker valida URLs (anti-SSRF)
 - Testes devem passar antes de qualquer merge (`npm run ci`)
+
+## Security
+- Disclosure policy: `SECURITY.md` (raiz) + `.github/SECURITY.md`
+- Checklist:
+  - [ ] Secrets nunca commitados (gitleaks pre-commit hook ativo no workspace)
+  - [ ] Worker valida URLs de entrada (anti-SSRF)
+  - [ ] HTML externo escapado (sem innerHTML direto)
+  - [ ] WCAG 2.1 AA obrigatoria
+  - [ ] Dependencies auditadas via Renovate (renovate.json configurado)
+- Docs completos: `docs/security/` (11 arquivos — secrets, supply chain, hooks, disclosure, logging, zero-trust, IAM, compliance, incident, SBOM)
 
 ## Documentacao de engenharia
 - `docs/plano/` — O QUE construir (produto, features, fases, arquitetura)

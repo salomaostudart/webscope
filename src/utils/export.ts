@@ -3,14 +3,22 @@
  * Runs entirely client-side (no server needed).
  */
 
-import type { AuditResult, Finding } from '../analyzers/base/analyzer.interface';
+import type { AuditResult } from '../analyzers/base/analyzer.interface';
 
 // --- CSV ---
 
 export function exportCSV(result: AuditResult): string {
   const headers = [
-    'Analyzer', 'Severity', 'Category', 'Title', 'Description',
-    'Recommendation', 'Impact', 'Effort', 'Current Value', 'Expected Value',
+    'Analyzer',
+    'Severity',
+    'Category',
+    'Title',
+    'Description',
+    'Recommendation',
+    'Impact',
+    'Effort',
+    'Current Value',
+    'Expected Value',
   ];
 
   const rows = result.allFindings.map((f) => [
@@ -42,7 +50,7 @@ export function exportMarkdown(result: AuditResult): string {
   const lines: string[] = [];
   const date = new Date(result.analyzedAt).toLocaleString();
 
-  lines.push(`# WebScope Audit Report`);
+  lines.push('# WebScope Audit Report');
   lines.push('');
   lines.push(`**URL:** ${result.url}`);
   lines.push(`**Date:** ${date}`);
@@ -55,8 +63,12 @@ export function exportMarkdown(result: AuditResult): string {
   lines.push('| Category | Score | Grade |');
   lines.push('|---|---|---|');
   const names: Record<string, string> = {
-    performance: 'Performance', seo: 'SEO', accessibility: 'Accessibility',
-    content: 'Content', branding: 'Branding', security: 'Security',
+    performance: 'Performance',
+    seo: 'SEO',
+    accessibility: 'Accessibility',
+    content: 'Content',
+    branding: 'Branding',
+    security: 'Security',
   };
   for (const r of result.results) {
     lines.push(`| ${names[r.analyzer] || r.analyzer} | ${r.score} | ${r.grade} |`);
