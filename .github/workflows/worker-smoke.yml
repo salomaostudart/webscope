@@ -14,4 +14,4 @@ jobs:
       - run: npx wrangler dev --local --port 8787 &
       - run: |
           sleep 5
-          curl -f http://localhost:8787/ || echo "Skip: worker may not have root endpoint"
+          curl -f http://localhost:8787/health

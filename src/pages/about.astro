@@ -60,12 +60,12 @@ const stack = [
   },
   {
     name: 'Cloudflare D1',
-    role: 'Database (planned)',
+    role: 'Audit history database (em producao)',
     url: 'https://developers.cloudflare.com/d1/',
   },
   {
     name: 'Cloudflare Workers AI',
-    role: 'AI suggestions (planned)',
+    role: 'AI suggestions (em producao — Qwen2.5-coder)',
     url: 'https://developers.cloudflare.com/workers-ai/',
   },
   {
@@ -171,6 +171,7 @@ const stack = [
         <li>Some checks require Lighthouse data — if PSI API is unavailable, those checks are skipped</li>
         <li>Does not replace a manual accessibility audit or professional penetration test</li>
         <li>Content analysis is automated — nuance and context require human review</li>
+        <li>Rate limits apply (free tier): 10 proxy fetches/hour/IP, 20 AI suggestions/hour/IP, 10 audit saves/hour/IP</li>
       </ul>
     </section>
 
